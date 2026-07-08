@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Lato', sans-serif; }
+    a { color: #008545; }
+    a:hover { color: #CC1000; }
+    input:focus, select:focus { outline: 2px solid #008545; outline-offset: 1px; }
+    input[type="text"], input[type="password"], input[type="search"], select { font-family: 'Lato', sans-serif; }
+    ::selection { background: #008545; color: #f4ede1; }
+    .cashier-grid { display: grid; grid-template-columns: 380px 1fr; gap: 24px; align-items: start; }
+    @media (max-width: 860px) {
+      .cashier-grid { grid-template-columns: 1fr !important; }
+      .summary-grid { grid-template-columns: 1fr 1fr !important; }
+      .cashier-nav { padding: 14px 18px !important; flex-wrap: wrap; gap: 10px; }
+    }
+  </style>
+</helmet>
+
+<div style="min-height:100vh; background:#F6F1E7; color:#222222; letter-spacing:-0.01em;">
+
+  <!-- ============ LOGIN GATE ============ -->
+  <sc-if value="{{ notAuthed }}" hint-placeholder-val="{{ true }}">
+    <div style="min-height:100vh; background:#00532b; display:flex; align-items:center; justify-content:center; padding:24px;">
+      <div style="width:100%; max-width:400px; background:#fff; border-radius:20px; padding:40px 36px; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+          <svg width="26" height="26" viewBox="0 0 256 256" fill="#008545"><path d="M 256 256 L 128 256 L 0 128 L 128 128 Z M 256 128 L 128 128 L 0 0 L 128 0 Z"></path></svg>
+          <span style="font-family:'Playfair Display', serif; font-style:italic; font-size:22px;">Changi Canopy</span>
+        </div>
+        <h1 style="font-family:'Playfair Display', serif; font-weight:500; font-size:24px; margin:0 0 6px;">Cashier sign-in</h1>
+        <p style="font-size:13px; color:#888; margin:0 0 26px;">Collections &amp; sale closing desk.</p>
+        <label style="display:block; font-size:12px; font-weight:600; color:#555; margin-bottom:6px;">Username</label>
+        <input type="text" value="{{ loginUser }}" onInput="{{ onLoginUser }}" onKeyDown="{{ onLoginKey }}" placeholder="cashier" style="width:100%; padding:12px 13px; border:1px solid rgba(42,38,32,0.15); border-radius:9px; font-size:14px; margin-bottom:16px;" />
+        <label style="display:block; font-size:12px; font-weight:600; color:#555; margin-bottom:6px;">Password</label>
+        <input type="password" value="{{ loginPass }}" onInput="{{ onLoginPass }}" onKeyDown="{{ onLoginKey }}" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" style="width:100%; padding:12px 13px; border:1px solid rgba(42,38,32,0.15); border-radius:9px; font-size:14px; margin-bottom:20px;" />
+        <sc-if value="{{ loginError }}" hint-placeholder-val="{{ false }}">
+          <div style="color:#CC1000; font-size:13px; font-weight:600; margin-bottom:16px;">{{ loginError }}</div>
+        </sc-if>
+        <button onClick="{{ doLogin }}" style="width:100%; background:#008545; color:#f4ede1; font-size:15px; font-weight:600; padding:14px; border-radius:999px; border:none; cursor:pointer;">Sign in</button>
+        <a href="index.html?home=1" style="display:block; text-align:center; font-size:13px; color:#888; margin-top:18px; text-decoration:none;">&larr; Back to site</a>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ CASHIER DESK ============ -->
+  <sc-if value="{{ authed }}" hint-placeholder-val="{{ false }}">
+  <nav class="cashier-nav" style="display:flex; align-items:center; justify-content:space-between; padding:18px 32px; background:#00532b; border-bottom:1px solid rgba(255,255,255,0.08);">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <svg width="22" height="22" viewBox="0 0 256 256" fill="#f4ede1"><path d="M 256 256 L 128 256 L 0 128 L 128 128 Z M 256 128 L 128 128 L 0 0 L 128 0 Z"></path></svg>
+      <span style="font-family:'Playfair Display', serif; font-style:italic; font-size:20px; color:#f4ede1;">Changi Canopy</span>
+      <span style="font-size:12px; color:#7ad9a3; background:rgba(255,255,255,0.08); padding:4px 10px; border-radius:999px; margin-left:8px;">Collections desk</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:16px;">
+      <a href="pnl-dashboard.html" style="color:#eaf5ee; font-size:13px; text-decoration:none;">P&amp;L dashboard</a>
+      <a href="index.html?home=1" style="color:#eaf5ee; font-size:13px; text-decoration:none;">&larr; Site</a>
+      <button onClick="{{ logout }}" style="background:rgba(255,255,255,0.1); color:#eaf5ee; border:none; font-size:13px; font-weight:600; padding:7px 16px; border-radius:999px; cursor:pointer;">Sign out</button>
+    </div>
+  </nav>
+
+  <section style="max-width:1160px; margin:0 auto; padding:32px 32px 100px;">
+
+    <!-- Today summary -->
+    <div class="summary-grid" style="display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; margin-bottom:28px;">
+      <div style="background:#00532b; color:#f4ede1; border-radius:16px; padding:20px 22px;">
+        <div style="font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:#7ad9a3; margin-bottom:8px;">Awaiting collection</div>
+        <div style="font-family:'Playfair Display', serif; font-size:28px; font-weight:500;">{{ pendingCount }}</div>
+      </div>
+      <div style="background:#fff; border-radius:16px; padding:20px 22px; box-shadow:0 1px 3px rgba(42,38,32,0.06);">
+        <div style="font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:#888; margin-bottom:8px;">Collected today</div>
+        <div style="font-family:'Playfair Display', serif; font-size:28px; font-weight:500;">{{ collectedToday }}</div>
+      </div>
+      <div style="background:#fff; border-radius:16px; padding:20px 22px; box-shadow:0 1px 3px rgba(42,38,32,0.06);">
+        <div style="font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:#888; margin-bottom:8px;">Revenue today</div>
+        <div style="font-family:'Playfair Display', serif; font-size:28px; font-weight:500; color:#008545;">{{ revenueToday }}</div>
+      </div>
+      <div style="background:#fff; border-radius:16px; padding:20px 22px; box-shadow:0 1px 3px rgba(42,38,32,0.06);">
+        <div style="font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:#888; margin-bottom:8px;">Profit today</div>
+        <div style="font-family:'Playfair Display', serif; font-size:28px; font-weight:500; color:#008545;">{{ profitToday }}</div>
+      </div>
+    </div>
+
+    <div class="cashier-grid">
+
+      <!-- LEFT: queue -->
+      <div style="background:#fff; border-radius:18px; box-shadow:0 1px 3px rgba(42,38,32,0.06); overflow:hidden;">
+        <div style="padding:20px 20px 14px;">
+          <div style="position:relative;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b3a998" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute; left:13px; top:50%; transform:translateY(-50%);"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="search" value="{{ search }}" onInput="{{ onSearch }}" placeholder="Order ID, name, phone or email" style="width:100%; padding:12px 14px 12px 38px; border:1px solid rgba(42,38,32,0.15); border-radius:10px; font-size:14px;" />
+          </div>
+          <div style="display:flex; gap:6px; margin-top:14px; background:rgba(42,38,32,0.05); border-radius:999px; padding:5px;">
+            <button onClick="{{ showOpen }}" style="{{ tabOpenStyle }}">Open {{ openCountLabel }}</button>
+            <button onClick="{{ showDone }}" style="{{ tabDoneStyle }}">Collected</button>
+          </div>
+        </div>
+        <div style="max-height:560px; overflow-y:auto; border-top:1px solid rgba(42,38,32,0.06);">
+          <sc-for list="{{ listOrders }}" as="o" hint-placeholder-count="4">
+            <button onClick="{{ o.select }}" style="{{ o.rowStyle }}">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                <span style="font-size:13px; font-weight:700; color:#222; letter-spacing:-0.01em;">{{ o.name }}</span>
+                <span style="{{ o.badgeStyle }}">{{ o.badgeLabel }}</span>
+              </div>
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:5px;">
+                <span style="font-size:12px; color:#888;">{{ o.id }}</span>
+                <span style="font-size:12px; color:#555; font-weight:600;">{{ o.summary }}</span>
+              </div>
+            </button>
+          </sc-for>
+          <sc-if value="{{ listEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:48px 24px; text-align:center; color:#b3a998; font-size:14px;">{{ listEmptyMsg }}</div>
+          </sc-if>
+        </div>
+      </div>
+
+      <!-- RIGHT: detail -->
+      <div>
+        <sc-if value="{{ hasSelection }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#fff; border-radius:18px; box-shadow:0 1px 3px rgba(42,38,32,0.06); overflow:hidden;">
+
+            <!-- header -->
+            <div style="padding:24px 28px; border-bottom:1px solid rgba(42,38,32,0.08); display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+              <div>
+                <div style="font-family:'Playfair Display', serif; font-size:22px; font-weight:500;">{{ sel.name }}</div>
+                <div style="font-size:13px; color:#888; margin-top:3px;">Order {{ sel.id }} &middot; {{ sel.date }}</div>
+              </div>
+              <span style="{{ sel.badgeStyle }}">{{ sel.badgeLabel }}</span>
+            </div>
+
+            <!-- customer -->
+            <div style="padding:18px 28px; display:flex; gap:36px; flex-wrap:wrap; font-size:13px; color:#555; border-bottom:1px solid rgba(42,38,32,0.06);">
+              <div>
+                <div style="font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:#aaa; margin-bottom:3px;">Phone</div>
+                <div style="color:#222; font-weight:600;">{{ sel.phone }}</div>
+              </div>
+              <div>
+                <div style="font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:#aaa; margin-bottom:3px;">Email</div>
+                <div style="color:#222;">{{ sel.email }}</div>
+              </div>
+              <sc-if value="{{ sel.showPaid }}" hint-placeholder-val="{{ false }}">
+                <div>
+                  <div style="font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:#aaa; margin-bottom:3px;">Already collected</div>
+                  <div style="color:#222;">{{ sel.paidLabel }}</div>
+                </div>
+              </sc-if>
+            </div>
+
+            <!-- items -->
+            <div style="padding:8px 28px 4px;">
+              <div style="display:flex; align-items:center; font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:#aaa; padding:12px 0 8px; border-bottom:1px solid rgba(42,38,32,0.06);">
+                <span style="flex:1;">Plant</span>
+                <span style="width:70px; text-align:center;">Ordered</span>
+                <span style="width:130px; text-align:center;">Collect now</span>
+                <span style="width:80px; text-align:right;">Amount</span>
+              </div>
+              <sc-for list="{{ sel.items }}" as="it" hint-placeholder-count="2">
+                <div style="display:flex; align-items:center; padding:14px 0; border-bottom:1px solid rgba(42,38,32,0.05);">
+                  <div style="flex:1; min-width:0;">
+                    <div style="font-family:'Playfair Display', serif; font-size:16px; font-weight:500;">{{ it.name }}</div>
+                    <div style="font-size:12px; color:#888; margin-top:2px;">{{ it.unitLabel }} each &middot; {{ it.statusText }}</div>
+                  </div>
+                  <div style="width:70px; text-align:center; font-size:14px; color:#555;">{{ it.qty }}</div>
+                  <div style="width:130px; display:flex; align-items:center; justify-content:center;">
+                    <sc-if value="{{ it.done }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-size:12px; font-weight:700; color:#008545;">&#10003; Collected</span>
+                    </sc-if>
+                    <sc-if value="{{ it.pending }}" hint-placeholder-val="{{ true }}">
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        <button onClick="{{ it.dec }}" style="width:28px; height:28px; border-radius:8px; border:1px solid rgba(42,38,32,0.15); background:#fff; font-size:17px; line-height:1; cursor:pointer; color:#555;">&minus;</button>
+                        <span style="min-width:20px; text-align:center; font-size:15px; font-weight:700;">{{ it.take }}</span>
+                        <button onClick="{{ it.inc }}" disabled="{{ it.incDisabled }}" style="{{ it.incStyle }}">+</button>
+                      </div>
+                    </sc-if>
+                  </div>
+                  <div style="width:80px; text-align:right; font-size:14px; font-weight:600; color:{{ it.amountColor }};">{{ it.lineNowLabel }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <!-- payment + close -->
+            <sc-if value="{{ sel.canCollectMore }}" hint-placeholder-val="{{ true }}">
+              <div style="padding:20px 28px 26px; background:#F9F6EF; border-top:1px solid rgba(42,38,32,0.06);">
+                <div style="display:flex; gap:20px; flex-wrap:wrap; align-items:flex-end; justify-content:space-between;">
+                  <div style="display:flex; gap:20px; flex-wrap:wrap; align-items:flex-end;">
+                    <div>
+                      <label style="display:block; font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:#888; margin-bottom:6px;">Payment method</label>
+                      <select value="{{ payMethod }}" onChange="{{ onPayMethod }}" style="padding:11px 13px; border:1px solid rgba(42,38,32,0.15); border-radius:9px; font-size:14px; background:#fff; min-width:150px;">
+                        <sc-for list="{{ payMethods }}" as="m" hint-placeholder-count="4">
+                          <option value="{{ m }}">{{ m }}</option>
+                        </sc-for>
+                      </select>
+                    </div>
+                    <button onClick="{{ togglePayment }}" style="{{ payToggleStyle }}">
+                      <span style="{{ payDotStyle }}"></span>{{ payToggleLabel }}
+                    </button>
+                  </div>
+                  <div style="text-align:right;">
+                    <div style="font-size:12px; color:#888;">Amount due now</div>
+                    <div style="font-family:'Playfair Display', serif; font-size:30px; font-weight:600; color:#00532b; line-height:1.1;">{{ sel.revenueNowLabel }}</div>
+                    <div style="font-size:12px; color:#888; margin-top:2px;">Cost {{ sel.costNowLabel }} &middot; Profit <span style="color:#008545; font-weight:600;">{{ sel.profitNowLabel }}</span></div>
+                  </div>
+                </div>
+                <button onClick="{{ closeSale }}" disabled="{{ closeDisabled }}" style="{{ closeBtnStyle }}">{{ closeBtnLabel }}</button>
+                <div style="font-size:12px; color:#999; text-align:center; margin-top:10px;">{{ closeHint }}</div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ sel.fullyDone }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:22px 28px; background:rgba(0,133,69,0.07); border-top:1px solid rgba(0,133,69,0.2); display:flex; align-items:center; gap:14px;">
+                <div style="width:42px; height:42px; border-radius:999px; background:#008545; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </div>
+                <div>
+                  <div style="font-size:15px; font-weight:700; color:#00532b;">Sale closed &middot; fully collected</div>
+                  <div style="font-size:13px; color:#555; margin-top:2px;">{{ sel.paidLabel }} paid via {{ sel.payMethodLabel }} &middot; {{ sel.collectedAtLabel }}</div>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ noSelection }}" hint-placeholder-val="{{ true }}">
+          <div style="background:#fff; border-radius:18px; box-shadow:0 1px 3px rgba(42,38,32,0.06); padding:80px 32px; text-align:center;">
+            <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#d8d0bf" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:18px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            <div style="font-family:'Playfair Display', serif; font-size:20px; font-weight:500; color:#222;">Find a customer's order</div>
+            <div style="font-size:14px; color:#888; margin-top:8px; max-width:340px; margin-left:auto; margin-right:auto;">Ask for the order number on their receipt, or search by name or phone, then pick it from the list to confirm collection.</div>
+          </div>
+        </sc-if>
+      </div>
+
+    </div>
+  </section>
+
+  <sc-if value="{{ toastVisible }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed; bottom:28px; left:50%; transform:translateX(-50%); background:#222222; color:#fff; font-size:14px; font-weight:500; padding:14px 26px; border-radius:999px; box-shadow:0 8px 24px rgba(0,0,0,0.2); z-index:400;">{{ toastMessage }}</div>
+  </sc-if>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const DEFAULT_STOCK = 20;
+const CASHIER_USER = 'cashier';
+const CASHIER_PASS = 'collect2026';
+const DEFAULT_COSTS = { monstera: 26, fiddle: 34, snake: 18, pothos: 15, succulent: 14, rubber: 24, sunflower: 17, orchid: 30, kumquat: 32, luckybamboo: 12 };
+const PRODUCT_IDS = Object.keys(DEFAULT_COSTS);
+const PAY_METHODS = ['Cash', 'PayNow', 'Card', 'Bank transfer'];
+
+function loadJSON(k, fb) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fb; } catch (e) { return fb; } }
+function saveJSON(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+function fmt(n) { return '$' + Number(n || 0).toFixed(2); }
+function round2(n) { return Math.round((Number(n) || 0) * 100) / 100; }
+function todayISO() { return new Date().toISOString().slice(0, 10); }
+
+function migrateInventoryV2() {
+  if ((loadJSON('cc_model_v', 0) || 0) >= 2) return;
+  const orders = loadJSON('cc_orders', []);
+  let inv = loadJSON('cc_inventory', null);
+  if (!inv) { inv = {}; PRODUCT_IDS.forEach((id) => { inv[id] = DEFAULT_STOCK; }); }
+  const reserved = {};
+  orders.forEach((o) => {
+    if (!o.status) o.status = 'pending';
+    if (o.phone == null) o.phone = '';
+    (o.items || []).forEach((it) => {
+      if (it.collected == null) it.collected = 0;
+      const outstanding = Math.max(0, it.qty - it.collected);
+      if (o.status !== 'collected' && outstanding > 0) {
+        reserved[it.id] = (reserved[it.id] || 0) + outstanding;
+        inv[it.id] = (inv[it.id] == null ? DEFAULT_STOCK : inv[it.id]) + outstanding;
+      }
+    });
+  });
+  saveJSON('cc_inventory', inv);
+  saveJSON('cc_reserved', reserved);
+  saveJSON('cc_orders', orders);
+  if (!loadJSON('cc_costs', null)) saveJSON('cc_costs', { ...DEFAULT_COSTS });
+  saveJSON('cc_model_v', 2);
+}
+
+class Component extends DCLogic {
+  state = {
+    authed: (() => { try { return sessionStorage.getItem('cc_cashier_authed') === '1'; } catch (e) { return false; } })(),
+    loginUser: '', loginPass: '', loginError: '',
+    orders: [], inventory: {}, reserved: {}, costs: {}, pnl: [],
+    search: '',
+    listTab: 'open',
+    selectedId: null,
+    draft: {},
+    paymentReceived: false,
+    payMethod: 'Cash',
+    toastVisible: false, toastMessage: '',
+  };
+
+  componentDidMount() {
+    migrateInventoryV2();
+    this.reloadAll();
+    this._onStorage = (e) => {
+      if (['cc_orders', 'cc_inventory', 'cc_reserved', 'cc_costs', 'cc_pnl'].includes(e.key)) this.reloadAll();
+    };
+    window.addEventListener('storage', this._onStorage);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('storage', this._onStorage);
+    clearTimeout(this._toastTimer);
+  }
+
+  reloadAll = () => {
+    this.setState({
+      orders: loadJSON('cc_orders', []),
+      inventory: loadJSON('cc_inventory', {}),
+      reserved: loadJSON('cc_reserved', {}),
+      costs: loadJSON('cc_costs', { ...DEFAULT_COSTS }),
+      pnl: loadJSON('cc_pnl', []),
+    });
+  };
+
+  // ---- auth ----
+  onLoginUser = (e) => this.setState({ loginUser: e.target.value, loginError: '' });
+  onLoginPass = (e) => this.setState({ loginPass: e.target.value, loginError: '' });
+  onLoginKey = (e) => { if (e.key === 'Enter') this.doLogin(); };
+  doLogin = () => {
+    if (this.state.loginUser.trim() === CASHIER_USER && this.state.loginPass === CASHIER_PASS) {
+      try { sessionStorage.setItem('cc_cashier_authed', '1'); } catch (e) {}
+      this.setState({ authed: true, loginPass: '', loginError: '' });
+    } else {
+      this.setState({ loginError: 'Incorrect username or password.' });
+    }
+  };
+  logout = () => {
+    try { sessionStorage.removeItem('cc_cashier_authed'); } catch (e) {}
+    this.setState({ authed: false, loginUser: '', loginPass: '', selectedId: null });
+  };
+
+  costFor = (id) => {
+    const c = this.state.costs || {};
+    return c[id] == null ? (DEFAULT_COSTS[id] || 0) : c[id];
+  };
+
+  toast = (msg) => {
+    this.setState({ toastVisible: true, toastMessage: msg });
+    clearTimeout(this._toastTimer);
+    this._toastTimer = setTimeout(() => this.setState({ toastVisible: false }), 2400);
+  };
+
+  // ---- list / selection ----
+  onSearch = (e) => this.setState({ search: e.target.value });
+  showOpen = () => this.setState({ listTab: 'open' });
+  showDone = () => this.setState({ listTab: 'done' });
+
+  selectOrder = (id) => {
+    const o = this.state.orders.find((x) => x.id === id);
+    const draft = {};
+    if (o) o.items.forEach((it) => { draft[it.id] = Math.max(0, it.qty - (it.collected || 0)); });
+    this.setState({ selectedId: id, draft, paymentReceived: false, payMethod: o && o.payMethod ? o.payMethod : 'Cash' });
+  };
+
+  remainingOf = (it) => Math.max(0, it.qty - (it.collected || 0));
+
+  incDraft = (it) => {
+    const rem = this.remainingOf(it);
+    const cur = this.state.draft[it.id] || 0;
+    if (cur >= rem) return;
+    this.setState({ draft: { ...this.state.draft, [it.id]: cur + 1 } });
+  };
+  decDraft = (it) => {
+    const cur = this.state.draft[it.id] || 0;
+    this.setState({ draft: { ...this.state.draft, [it.id]: Math.max(0, cur - 1) } });
+  };
+  togglePayment = () => this.setState({ paymentReceived: !this.state.paymentReceived });
+  onPayMethod = (e) => this.setState({ payMethod: e.target.value });
+
+  selectedOrder = () => this.state.orders.find((x) => x.id === this.state.selectedId) || null;
+
+  collectingUnits = (o) => o.items.reduce((s, it) => s + Math.min(this.state.draft[it.id] || 0, this.remainingOf(it)), 0);
+
+  closeSale = () => {
+    const o = this.selectedOrder();
+    if (!o) return;
+    const units = this.collectingUnits(o);
+    if (units <= 0) { this.toast('Select at least one plant to collect'); return; }
+    if (!this.state.paymentReceived) { this.toast('Confirm payment received first'); return; }
+
+    const orders = JSON.parse(JSON.stringify(this.state.orders));
+    const target = orders.find((x) => x.id === o.id);
+    const inv = { ...this.state.inventory };
+    const reserved = { ...this.state.reserved };
+    let revenueNow = 0, costNow = 0;
+
+    target.items.forEach((it) => {
+      const rem = Math.max(0, it.qty - (it.collected || 0));
+      const take = Math.min(this.state.draft[it.id] || 0, rem);
+      if (take > 0) {
+        it.collected = (it.collected || 0) + take;
+        inv[it.id] = Math.max(0, (inv[it.id] == null ? DEFAULT_STOCK : inv[it.id]) - take);
+        reserved[it.id] = Math.max(0, (reserved[it.id] || 0) - take);
+        revenueNow += it.unit * take;
+        costNow += this.costFor(it.id) * take;
+      }
+    });
+
+    const fullyDone = target.items.every((it) => (it.collected || 0) >= it.qty);
+    target.status = fullyDone ? 'collected' : 'partial';
+    target.paidAmount = round2((target.paidAmount || 0) + revenueNow);
+    target.payMethod = this.state.payMethod;
+    target.collectedAt = new Date().toLocaleString('en-SG', { dateStyle: 'medium', timeStyle: 'short' });
+
+    const pnl = loadJSON('cc_pnl', []);
+    pnl.push({ date: todayISO(), revenue: round2(revenueNow), costs: round2(costNow), orderId: target.id, note: target.name });
+    pnl.sort((a, b) => a.date.localeCompare(b.date));
+
+    saveJSON('cc_orders', orders);
+    saveJSON('cc_inventory', inv);
+    saveJSON('cc_reserved', reserved);
+    saveJSON('cc_pnl', pnl);
+
+    // Rebuild draft to new remaining (0 for collected items).
+    const draft = {};
+    target.items.forEach((it) => { draft[it.id] = Math.max(0, it.qty - (it.collected || 0)); });
+
+    this.setState({ orders, inventory: inv, reserved, pnl, draft, paymentReceived: false });
+    this.toast((fullyDone ? 'Sale closed' : 'Partial collection saved') + ' \u00b7 ' + fmt(revenueNow) + ' recorded');
+  };
+
+  renderVals() {
+    const badge = (status) => {
+      if (status === 'collected') return { label: 'Collected', style: 'font-size:11px; font-weight:700; padding:5px 12px; border-radius:999px; background:rgba(0,133,69,0.12); color:#008545;' };
+      if (status === 'partial') return { label: 'Partly collected', style: 'font-size:11px; font-weight:700; padding:5px 12px; border-radius:999px; background:rgba(232,164,0,0.16); color:#B37A00;' };
+      return { label: 'Awaiting', style: 'font-size:11px; font-weight:700; padding:5px 12px; border-radius:999px; background:rgba(204,16,0,0.1); color:#CC1000;' };
+    };
+
+    const orders = this.state.orders || [];
+    const q = this.state.search.trim().toLowerCase();
+    const matches = (o) => !q || [o.id, o.name, o.phone, o.email].some((v) => (v || '').toLowerCase().includes(q));
+
+    const open = orders.filter((o) => o.status !== 'collected');
+    const done = orders.filter((o) => o.status === 'collected');
+    const base = this.state.listTab === 'open' ? open : done;
+    const listSrc = base.filter(matches).slice().reverse();
+
+    const listOrders = listSrc.map((o) => {
+      const b = badge(o.status);
+      const units = o.items.reduce((s, it) => s + it.qty, 0);
+      const selected = o.id === this.state.selectedId;
+      return {
+        id: o.id, name: o.name,
+        badgeLabel: b.label, badgeStyle: b.style,
+        summary: units + ' item' + (units === 1 ? '' : 's') + ' \u00b7 ' + fmt(o.total),
+        select: () => this.selectOrder(o.id),
+        rowStyle: 'display:block; width:100%; text-align:left; border:none; cursor:pointer; padding:14px 20px; border-bottom:1px solid rgba(42,38,32,0.05); background:' + (selected ? 'rgba(0,133,69,0.08)' : 'transparent') + '; box-shadow:' + (selected ? 'inset 3px 0 0 #008545' : 'none') + ';',
+      };
+    });
+
+    // Today's closed-sale figures from P&L entries tagged with an orderId.
+    const todaySales = (this.state.pnl || []).filter((e) => e.orderId && e.date === todayISO());
+    const revToday = todaySales.reduce((s, e) => s + (e.revenue || 0), 0);
+    const costToday = todaySales.reduce((s, e) => s + (e.costs || 0), 0);
+
+    const o = this.selectedOrder();
+    let sel = null, closeDisabled = true, closeBtnLabel = 'Close sale', closeHint = '';
+    if (o) {
+      const b = badge(o.status);
+      let revenueNow = 0, costNow = 0;
+      const items = o.items.map((it) => {
+        const rem = Math.max(0, it.qty - (it.collected || 0));
+        const take = Math.min(this.state.draft[it.id] || 0, rem);
+        const done = rem <= 0;
+        revenueNow += it.unit * take;
+        costNow += this.costFor(it.id) * take;
+        const incDisabled = take >= rem;
+        return {
+          name: it.name, qty: it.qty, take,
+          unitLabel: fmt(it.unit),
+          done, pending: !done,
+          statusText: done ? 'all collected' : ((it.collected || 0) > 0 ? (it.collected + ' of ' + it.qty + ' collected') : (rem + ' to collect')),
+          inc: () => this.incDraft(it), dec: () => this.decDraft(it),
+          incDisabled,
+          incStyle: 'width:28px; height:28px; border-radius:8px; border:1px solid rgba(42,38,32,0.15); background:#fff; font-size:16px; line-height:1; color:#555; cursor:' + (incDisabled ? 'not-allowed' : 'pointer') + '; opacity:' + (incDisabled ? '0.4' : '1') + ';',
+          lineNowLabel: take > 0 ? fmt(it.unit * take) : '\u2014',
+          amountColor: take > 0 ? '#222' : '#c9c0af',
+        };
+      });
+      const units = items.reduce((s, i) => s + i.take, 0);
+      const canCollectMore = o.status !== 'collected';
+      closeDisabled = !(this.state.paymentReceived && units > 0 && canCollectMore);
+      const allSelectedNow = o.items.every((it) => (it.collected || 0) + Math.min(this.state.draft[it.id] || 0, Math.max(0, it.qty - (it.collected || 0))) >= it.qty);
+      closeBtnLabel = allSelectedNow ? 'Confirm payment & close sale' : 'Confirm partial collection';
+      closeHint = !this.state.paymentReceived ? 'Toggle \u201cPayment received\u201d to enable.' : (units > 0 ? (units + ' item' + (units === 1 ? '' : 's') + ' will be handed over and deducted from stock.') : 'Choose how many of each plant to hand over.');
+      sel = {
+        id: o.id, name: o.name, date: o.date,
+        phone: o.phone || '\u2014', email: o.email || '\u2014',
+        badgeLabel: b.label, badgeStyle: b.style,
+        items,
+        revenueNowLabel: fmt(revenueNow), costNowLabel: fmt(costNow), profitNowLabel: fmt(revenueNow - costNow),
+        canCollectMore, fullyDone: o.status === 'collected',
+        showPaid: (o.paidAmount || 0) > 0,
+        paidLabel: fmt(o.paidAmount || 0),
+        payMethodLabel: o.payMethod || 'Cash',
+        collectedAtLabel: o.collectedAt || '',
+      };
+    }
+
+    const paid = this.state.paymentReceived;
+    return {
+      authed: this.state.authed, notAuthed: !this.state.authed,
+      loginUser: this.state.loginUser, loginPass: this.state.loginPass, loginError: this.state.loginError,
+      onLoginUser: this.onLoginUser, onLoginPass: this.onLoginPass, onLoginKey: this.onLoginKey,
+      doLogin: this.doLogin, logout: this.logout,
+
+      pendingCount: open.length,
+      collectedToday: todaySales.length,
+      revenueToday: fmt(revToday),
+      profitToday: fmt(revToday - costToday),
+
+      search: this.state.search, onSearch: this.onSearch,
+      showOpen: this.showOpen, showDone: this.showDone,
+      openCountLabel: '(' + open.length + ')',
+      tabOpenStyle: 'flex:1; padding:9px 14px; border-radius:999px; font-size:13px; font-weight:600; border:none; cursor:pointer; background:' + (this.state.listTab === 'open' ? '#fff' : 'transparent') + '; color:' + (this.state.listTab === 'open' ? '#00532b' : '#888') + '; box-shadow:' + (this.state.listTab === 'open' ? '0 1px 2px rgba(42,38,32,0.12)' : 'none') + ';',
+      tabDoneStyle: 'flex:1; padding:9px 14px; border-radius:999px; font-size:13px; font-weight:600; border:none; cursor:pointer; background:' + (this.state.listTab === 'done' ? '#fff' : 'transparent') + '; color:' + (this.state.listTab === 'done' ? '#00532b' : '#888') + '; box-shadow:' + (this.state.listTab === 'done' ? '0 1px 2px rgba(42,38,32,0.12)' : 'none') + ';',
+      listOrders,
+      listEmpty: listOrders.length === 0,
+      listEmptyMsg: this.state.listTab === 'open' ? (q ? 'No open orders match your search.' : 'No orders awaiting collection.') : (q ? 'No collected orders match your search.' : 'No collected orders yet.'),
+
+      hasSelection: !!sel, noSelection: !sel,
+      sel: sel || {},
+      payMethod: this.state.payMethod, onPayMethod: this.onPayMethod, payMethods: PAY_METHODS,
+      togglePayment: this.togglePayment,
+      payToggleLabel: paid ? 'Payment received' : 'Payment received?',
+      payToggleStyle: 'display:inline-flex; align-items:center; gap:9px; border-radius:999px; font-size:14px; font-weight:600; padding:11px 20px; cursor:pointer; border:1px solid ' + (paid ? '#008545' : 'rgba(42,38,32,0.2)') + '; background:' + (paid ? '#008545' : '#fff') + '; color:' + (paid ? '#fff' : '#555') + ';',
+      payDotStyle: 'width:9px; height:9px; border-radius:999px; background:' + (paid ? '#fff' : '#c9c0af') + ';',
+      closeSale: this.closeSale,
+      closeDisabled, closeBtnLabel, closeHint,
+      closeBtnStyle: 'width:100%; margin-top:18px; font-size:15px; font-weight:700; padding:16px; border-radius:999px; border:none; color:#f4ede1; background:' + (closeDisabled ? '#c9c0af' : '#008545') + '; cursor:' + (closeDisabled ? 'not-allowed' : 'pointer') + ';',
+
+      toastVisible: this.state.toastVisible, toastMessage: this.state.toastMessage,
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Lato', sans-serif; }
+    a { color: #008545; }
+    a:hover { color: #CC1000; }
+    @keyframes revealUp {
+      0% { opacity: 0; transform: translateY(30px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes revealPop {
+      0% { opacity: 0; transform: translateY(40px) scale(0.94); filter: blur(6px); }
+      60% { opacity: 1; }
+      100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+    }
+    .reveal { opacity: 0; }
+    .reveal-in.reveal-up { animation: revealUp 0.8s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .reveal-in.reveal-pop { animation: revealPop 0.7s cubic-bezier(0.16,1,0.3,1) forwards; }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal, .reveal-in { animation: none; opacity: 1; }
+    }
+    @media (max-width: 640px) {
+      .site-nav { padding: 12px 14px !important; gap: 6px; }
+      .nav-logo { font-size: 16px !important; white-space: nowrap; }
+      .nav-pill { padding: 4px !important; gap: 2px !important; }
+      .nav-pill a { padding: 7px 9px !important; font-size: 12px !important; white-space: nowrap; }
+      .nav-cart { padding: 10px 12px !important; }
+      .cart-label { display: none !important; }
+    }
+    @page { size: A4; margin: 16mm; }
+    @media print {
+      body * { visibility: hidden !important; }
+      #print-receipt, #print-receipt * { visibility: visible !important; }
+      #print-receipt { position: absolute !important; left: 0; top: 0; width: 100%; box-shadow: none !important; }
+    }
+  </style>
+</helmet>
+
+<div style="min-height:100vh; background:#FFFFFF; color:#222222; letter-spacing:-0.01em;">
+
+  <nav class="site-nav" style="position:sticky; top:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:18px 32px; background:rgba(246,241,231,0.85); backdrop-filter:blur(10px); border-bottom:1px solid rgba(42,38,32,0.08);">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <svg width="24" height="24" viewBox="0 0 256 256" fill="#008545"><path d="M 256 256 L 128 256 L 0 128 L 128 128 Z M 256 128 L 128 128 L 0 0 L 128 0 Z"></path></svg>
+      <span class="nav-logo" style="font-family:'Playfair Display', serif; font-style:italic; font-size:22px;">Changi Canopy</span>
+    </div>
+    <div class="nav-pill" style="display:flex; gap:4px; align-items:center; background:rgba(42,38,32,0.05); border-radius:999px; padding:6px;">
+      <a href="index.html?home=1" style="padding:8px 18px; border-radius:999px; font-size:14px; font-weight:500; color:#555555; text-decoration:none;">Home</a>
+      <a href="shop.html" style="padding:8px 18px; border-radius:999px; font-size:14px; font-weight:500; color:#222222; background:#fff; text-decoration:none;">Shop</a>
+      <a href="care-assistant.html" style="padding:8px 18px; border-radius:999px; font-size:14px; font-weight:500; color:#555555; text-decoration:none;">Plant Care</a>
+    </div>
+    <div style="display:flex; align-items:center; gap:16px;">
+      <button onClick="{{ openCart }}" class="nav-cart" style="position:relative; display:flex; align-items:center; gap:9px; background:#008545; color:#f4ede1; font-size:14px; font-weight:600; padding:11px 22px; border-radius:999px; border:none; cursor:pointer;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#f4ede1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+        <span class="cart-label">Cart</span>
+        <sc-if value="{{ hasCart }}" hint-placeholder-val="{{ false }}">
+          <span style="background:#CC1000; color:#fff; font-size:11px; font-weight:700; min-width:19px; height:19px; padding:0 5px; border-radius:999px; display:inline-flex; align-items:center; justify-content:center;">{{ cartCount }}</span>
+        </sc-if>
+      </button>
+    </div>
+  </nav>
+
+  <section style="max-width:1200px; margin:0 auto; padding:80px 32px 40px; text-align:center;">
+    <div ref="{{ registerReveal }}" class="reveal reveal-up" style="font-size:12px; letter-spacing:0.16em; text-transform:uppercase; color:#CC1000; font-weight:600; margin-bottom:16px;">The full collection</div>
+    <h1 ref="{{ registerReveal }}" class="reveal reveal-up" style="animation-delay:0.1s; font-family:'Playfair Display', serif; font-weight:500; font-size:clamp(34px,4.5vw,54px); margin:0 0 16px;">Shop plants by light &amp; life</h1>
+    <p ref="{{ registerReveal }}" class="reveal reveal-up" style="animation-delay:0.2s; font-size:16px; color:#555555; max-width:520px; margin:0 auto;">Filter by how much sun your space gets — every plant is matched to real conditions, not guesswork.</p>
+    <p ref="{{ registerReveal }}" class="reveal reveal-up" style="animation-delay:0.25s; font-size:13px; color:#CC1000; font-weight:600; max-width:520px; margin:12px auto 0;">New in: sunflowers, orchids &amp; Chinese New Year plants</p>
+  </section>
+
+  <section ref="{{ registerReveal }}" class="reveal reveal-up" style="animation-delay:0.3s; max-width:1200px; margin:0 auto; padding:0 32px 20px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
+    <sc-for list="{{ filters }}" as="f" hint-placeholder-count="4">
+      <button onClick="{{ f.onClick }}" style="{{ f.style }}">{{ f.label }}</button>
+    </sc-for>
+  </section>
+
+  <section style="max-width:1200px; margin:0 auto; padding:20px 32px 100px;">
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:28px;">
+      <sc-for list="{{ visibleProducts }}" as="p" hint-placeholder-count="6">
+        <div ref="{{ registerReveal }}" class="reveal reveal-pop" style="animation-delay:{{ p.revealDelay }}; background:#fff; border-radius:18px; overflow:hidden; box-shadow:0 1px 3px rgba(42,38,32,0.06); display:flex; flex-direction:column;">
+          <div style="position:relative; width:100%; aspect-ratio:1/1; background-image:url('{{ p.img }}'); background-size:cover; background-position:center;">
+            <div style="{{ p.stockBadgeStyle }}">{{ p.stockLabel }}</div>
+          </div>
+          <div style="padding:20px 22px 24px; display:flex; flex-direction:column; flex:1;">
+            <div style="font-family:'Playfair Display', serif; font-size:19px; font-weight:500; margin-bottom:4px;">{{ p.name }}</div>
+            <div style="font-size:13px; color:#888888; margin-bottom:6px;">{{ p.light }}</div>
+            <div style="font-size:13px; color:#555555; line-height:1.5; margin-bottom:12px; flex:1;">{{ p.blurb }}</div>
+            <div style="display:flex; align-items:center; gap:7px; font-size:12px; font-weight:600; margin-bottom:14px; {{ p.stockTextColor }}">
+              <span style="width:7px; height:7px; border-radius:999px; {{ p.stockDotColor }}"></span>{{ p.stockText }}
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+              <div style="font-size:16px; font-weight:600; color:#CC1000;">{{ p.price }}</div>
+              <button onClick="{{ p.addToCart }}" disabled="{{ p.soldOut }}" style="{{ p.addBtnStyle }}">{{ p.addLabel }}</button>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <footer style="background:#00532b; color:#eaf5ee; padding:56px 32px 32px;">
+    <div style="max-width:1200px; margin:0 auto; display:flex; flex-direction:column; align-items:center; gap:16px; text-align:center;">
+      <div style="display:flex; gap:24px; font-size:13px; flex-wrap:wrap; justify-content:center;">
+        <a href="terms.html" style="color:#eaf5ee; text-decoration:none;">Terms &amp; Conditions</a>
+        <a href="privacy.html" style="color:#eaf5ee; text-decoration:none;">Privacy</a>
+        <a href="disclaimer.html" style="color:#eaf5ee; text-decoration:none;">Disclaimer</a>
+      </div>
+      <div style="font-size:12px; color:#9fd6b8;">© 2026 Changi Canopy. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <!-- ============ WHATSAPP QUESTION BUTTON ============ -->
+  <button onClick="{{ waAsk }}" title="Ask us on WhatsApp" style="position:fixed; bottom:26px; left:26px; z-index:250; display:flex; align-items:center; gap:10px; background:#25D366; color:#fff; border:none; cursor:pointer; font-size:14px; font-weight:700; padding:14px 20px 14px 16px; border-radius:999px; box-shadow:0 6px 20px rgba(37,211,102,0.4);">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M17.6 6.32A7.85 7.85 0 0 0 12 4a7.94 7.94 0 0 0-6.9 11.9L4 20l4.2-1.1A7.9 7.9 0 0 0 12 19.9a7.94 7.94 0 0 0 5.6-13.58ZM12 18.56a6.6 6.6 0 0 1-3.36-.92l-.24-.14-2.5.65.67-2.43-.16-.25a6.59 6.59 0 1 1 5.59 3.09Zm3.61-4.94c-.2-.1-1.17-.58-1.35-.64s-.31-.1-.44.1-.51.64-.62.77-.23.15-.42.05a5.42 5.42 0 0 1-1.6-.99 6 6 0 0 1-1.1-1.38c-.12-.2 0-.31.08-.41s.2-.23.3-.35a1.34 1.34 0 0 0 .2-.33.37.37 0 0 0 0-.35c0-.1-.44-1.07-.6-1.46s-.32-.34-.44-.34h-.38a.72.72 0 0 0-.52.24 2.19 2.19 0 0 0-.69 1.63 3.82 3.82 0 0 0 .8 2.02 8.72 8.72 0 0 0 3.34 2.95c.47.2.83.32 1.11.41a2.69 2.69 0 0 0 1.23.08 2 2 0 0 0 1.32-.93 1.63 1.63 0 0 0 .11-.93c-.04-.09-.17-.14-.37-.24Z"></path></svg>
+    Ask us
+  </button>
+
+  <!-- ============ CART / CHECKOUT DRAWER ============ -->
+  <sc-if value="{{ drawerOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeCart }}" style="position:fixed; inset:0; background:rgba(20,18,15,0.42); z-index:300; backdrop-filter:blur(2px);"></div>
+    <aside style="position:fixed; top:0; right:0; bottom:0; width:min(440px, 100vw); background:#F6F1E7; z-index:301; box-shadow:-12px 0 40px rgba(0,0,0,0.18); display:flex; flex-direction:column;">
+
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:22px 26px; border-bottom:1px solid rgba(42,38,32,0.1);">
+        <span style="font-family:'Playfair Display', serif; font-size:22px; font-weight:500;">{{ drawerTitle }}</span>
+        <button onClick="{{ closeCart }}" style="background:none; border:none; font-size:26px; line-height:1; color:#555555; cursor:pointer;">×</button>
+      </div>
+
+      <!-- STEP: CART -->
+      <sc-if value="{{ stepCart }}" hint-placeholder-val="{{ true }}">
+        <div style="flex:1; overflow-y:auto; padding:20px 26px;">
+          <sc-if value="{{ hasCart }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex; flex-direction:column; gap:16px;">
+              <sc-for list="{{ cartItems }}" as="c" hint-placeholder-count="2">
+                <div style="display:flex; gap:14px; align-items:center; background:#fff; border-radius:14px; padding:12px; box-shadow:0 1px 2px rgba(42,38,32,0.06);">
+                  <div style="width:62px; height:62px; border-radius:10px; flex-shrink:0; background-image:url('{{ c.img }}'); background-size:cover; background-position:center;"></div>
+                  <div style="flex:1; min-width:0;">
+                    <div style="font-family:'Playfair Display', serif; font-size:15px; font-weight:500;">{{ c.name }}</div>
+                    <div style="font-size:13px; color:#CC1000; font-weight:600; margin-top:2px;">{{ c.priceLabel }}</div>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <button onClick="{{ c.dec }}" style="width:26px; height:26px; border-radius:8px; border:1px solid rgba(42,38,32,0.15); background:#fff; font-size:16px; line-height:1; cursor:pointer; color:#555;">−</button>
+                    <span style="min-width:18px; text-align:center; font-size:14px; font-weight:600;">{{ c.qty }}</span>
+                    <button onClick="{{ c.inc }}" disabled="{{ c.incDisabled }}" style="{{ c.incStyle }}">+</button>
+                  </div>
+                  <button onClick="{{ c.remove }}" style="background:none; border:none; color:#b3a998; cursor:pointer; font-size:18px; line-height:1;">×</button>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ cartEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="text-align:center; padding:60px 20px; color:#888888;">
+              <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#c9c0af" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:16px;"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+              <div style="font-size:15px;">Your cart is empty.</div>
+              <button onClick="{{ closeCart }}" style="margin-top:20px; background:none; border:1px solid rgba(42,38,32,0.2); color:#008545; font-size:13px; font-weight:600; padding:10px 22px; border-radius:999px; cursor:pointer;">Continue shopping</button>
+            </div>
+          </sc-if>
+        </div>
+        <sc-if value="{{ hasCart }}" hint-placeholder-val="{{ true }}">
+          <div style="border-top:1px solid rgba(42,38,32,0.1); padding:20px 26px;">
+            <div style="display:flex; justify-content:space-between; font-size:15px; margin-bottom:16px;">
+              <span style="color:#555555;">Subtotal</span>
+              <span style="font-weight:700; font-family:'Playfair Display', serif; font-size:20px;">{{ subtotalLabel }}</span>
+            </div>
+            <button onClick="{{ goCheckout }}" style="width:100%; background:#008545; color:#f4ede1; font-size:15px; font-weight:600; padding:15px; border-radius:999px; border:none; cursor:pointer;">Checkout</button>
+          </div>
+        </sc-if>
+      </sc-if>
+
+      <!-- STEP: CHECKOUT FORM -->
+      <sc-if value="{{ stepCheckout }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1; overflow-y:auto; padding:20px 26px;">
+          <label style="display:block; font-size:12px; font-weight:600; color:#555555; margin-bottom:6px;">Full name</label>
+          <input value="{{ buyerName }}" onInput="{{ onBuyerName }}" placeholder="Jane Tan" style="width:100%; padding:11px 13px; border:1px solid rgba(42,38,32,0.15); border-radius:9px; font-size:14px; margin-bottom:16px; font-family:'Lato',sans-serif; background:#fff;" />
+          <label style="display:block; font-size:12px; font-weight:600; color:#555555; margin-bottom:6px;">Email</label>
+          <input value="{{ buyerEmail }}" onInput="{{ onBuyerEmail }}" placeholder="jane@email.com" style="width:100%; padding:11px 13px; border:1px solid rgba(42,38,32,0.15); border-radius:9px; font-size:14px; margin-bottom:16px; font-family:'Lato',sans-serif; background:#fff;" />
+          <label style="display:block; font-size:12px; font-weight:600; color:#555555; margin-bottom:6px;">Phone number</label>
+          <input value="{{ buyerPhone }}" onInput="{{ onBuyerPhone }}" placeholder="e.g. 9123 4567" style="width:100%; padding:11px 13px; border:1px solid rgba(42,38,32,0.15); border-radius:9px; font-size:14px; margin-bottom:16px; font-family:'Lato',sans-serif; background:#fff;" />
+          <label style="display:block; font-size:12px; font-weight:600; color:#555555; margin-bottom:6px;">Delivery address <span style="font-weight:400; color:#999;">(optional — leave blank for in-store collection)</span></label>
+          <textarea value="{{ buyerAddress }}" onInput="{{ onBuyerAddress }}" placeholder="Block, street, unit, postal code" rows="3" style="width:100%; padding:11px 13px; border:1px solid rgba(42,38,32,0.15); border-radius:9px; font-size:14px; margin-bottom:20px; font-family:'Lato',sans-serif; background:#fff; resize:vertical;"></textarea>
+          <div style="background:#fff; border-radius:12px; padding:16px; box-shadow:0 1px 2px rgba(42,38,32,0.06);">
+            <sc-for list="{{ cartItems }}" as="c" hint-placeholder-count="2">
+              <div style="display:flex; justify-content:space-between; font-size:13px; color:#555; padding:4px 0;">
+                <span>{{ c.name }} × {{ c.qty }}</span>
+                <span style="font-weight:600; color:#222;">{{ c.lineLabel }}</span>
+              </div>
+            </sc-for>
+            <div style="display:flex; justify-content:space-between; font-size:15px; border-top:1px solid rgba(42,38,32,0.1); margin-top:8px; padding-top:10px;">
+              <span style="font-weight:600;">Total</span>
+              <span style="font-weight:700;">{{ subtotalLabel }}</span>
+            </div>
+          </div>
+          <sc-if value="{{ checkoutError }}" hint-placeholder-val="{{ false }}">
+            <div style="color:#CC1000; font-size:13px; margin-top:12px; font-weight:600;">{{ checkoutError }}</div>
+          </sc-if>
+        </div>
+        <div style="border-top:1px solid rgba(42,38,32,0.1); padding:20px 26px; display:flex; gap:12px;">
+          <button onClick="{{ backToCart }}" style="flex:0 0 auto; background:none; border:1px solid rgba(42,38,32,0.2); color:#555; font-size:14px; font-weight:600; padding:15px 22px; border-radius:999px; cursor:pointer;">Back</button>
+          <button onClick="{{ placeOrder }}" style="flex:1; background:#008545; color:#f4ede1; font-size:15px; font-weight:600; padding:15px; border-radius:999px; border:none; cursor:pointer;">Confirm order</button>
+        </div>
+      </sc-if>
+
+      <!-- STEP: CONFIRMED -->
+      <sc-if value="{{ stepDone }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1; overflow-y:auto; padding:14px 26px 26px;">
+          <div style="text-align:center; padding:8px 0 20px;">
+            <div style="width:56px; height:56px; border-radius:999px; background:#008545; display:inline-flex; align-items:center; justify-content:center; margin-bottom:14px;">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <div style="font-family:'Playfair Display', serif; font-size:22px; font-weight:500;">Order confirmed</div>
+            <div style="font-size:13px; color:#555; margin-top:4px;">Order {{ orderId }} · a copy is ready to print.</div>
+          </div>
+
+          <!-- Printable A4 receipt -->
+          <div id="print-receipt" style="background:#fff; border-radius:14px; padding:30px 30px; box-shadow:0 1px 3px rgba(42,38,32,0.1);">
+            <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:2px solid #00532b; padding-bottom:16px; margin-bottom:20px;">
+              <div style="display:flex; align-items:center; gap:9px;">
+                <svg width="26" height="26" viewBox="0 0 256 256" fill="#008545"><path d="M 256 256 L 128 256 L 0 128 L 128 128 Z M 256 128 L 128 128 L 0 0 L 128 0 Z"></path></svg>
+                <span style="font-family:'Playfair Display', serif; font-style:italic; font-size:22px; color:#00532b;">Changi Canopy</span>
+              </div>
+              <div style="text-align:right; font-size:11px; color:#888; line-height:1.5;">
+                <div style="font-weight:700; color:#222; font-size:13px;">ORDER RECEIPT</div>
+                <div>{{ orderId }}</div>
+                <div>{{ orderDate }}</div>
+              </div>
+            </div>
+            <div style="display:flex; gap:40px; margin-bottom:20px; font-size:12px; color:#555; line-height:1.6;">
+              <div>
+                <div style="font-weight:700; color:#222; margin-bottom:3px;">Billed to</div>
+                <div>{{ orderName }}</div>
+                <div>{{ orderPhone }}</div>
+                <div>{{ orderEmail }}</div>
+              </div>
+              <div style="flex:1;">
+                <div style="font-weight:700; color:#222; margin-bottom:3px;">Collect at</div>
+                <div>Changi Canopy store</div>
+                <div style="color:#888;">Present this receipt to collect</div>
+              </div>
+            </div>
+            <div style="background:rgba(0,133,69,0.08); border:1px solid rgba(0,133,69,0.25); border-radius:10px; padding:12px 16px; margin-bottom:20px; font-size:12px; color:#00532b; line-height:1.5;">
+              <strong>Click &amp; collect.</strong> Bring this receipt (or quote order <strong>{{ orderId }}</strong>) to Changi Canopy to collect and pay for your plants.
+            </div>
+            <table style="width:100%; border-collapse:collapse; font-size:13px;">
+              <thead>
+                <tr style="text-align:left; color:#888; border-bottom:1px solid rgba(42,38,32,0.15);">
+                  <th style="padding:8px 0; font-weight:600;">Plant</th>
+                  <th style="padding:8px 0; font-weight:600; text-align:center;">Qty</th>
+                  <th style="padding:8px 0; font-weight:600; text-align:right;">Unit</th>
+                  <th style="padding:8px 0; font-weight:600; text-align:right;">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <sc-for list="{{ orderItems }}" as="o" hint-placeholder-count="2">
+                  <tr style="border-bottom:1px solid rgba(42,38,32,0.07);">
+                    <td style="padding:10px 0; color:#222;">{{ o.name }}</td>
+                    <td style="padding:10px 0; text-align:center; color:#555;">{{ o.qty }}</td>
+                    <td style="padding:10px 0; text-align:right; color:#555;">{{ o.unitLabel }}</td>
+                    <td style="padding:10px 0; text-align:right; font-weight:600; color:#222;">{{ o.lineLabel }}</td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+            <div style="display:flex; justify-content:flex-end; margin-top:18px;">
+              <div style="width:200px;">
+                <div style="display:flex; justify-content:space-between; font-size:13px; color:#555; padding:4px 0;"><span>Subtotal</span><span>{{ orderSubtotal }}</span></div>
+                <div style="display:flex; justify-content:space-between; font-size:13px; color:#555; padding:4px 0;"><span>Delivery</span><span>Free</span></div>
+                <div style="display:flex; justify-content:space-between; font-size:16px; font-weight:700; color:#00532b; border-top:2px solid #00532b; margin-top:6px; padding-top:8px;"><span>Total</span><span>{{ orderSubtotal }}</span></div>
+              </div>
+            </div>
+            <div style="text-align:center; font-size:11px; color:#aaa; margin-top:28px; border-top:1px solid rgba(42,38,32,0.08); padding-top:14px;">Thank you for growing with us · changicanopy.sg</div>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:12px; background:rgba(37,211,102,0.1); border-radius:12px; padding:14px 16px; margin-top:18px;">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="#25D366" style="flex-shrink:0;"><path d="M17.6 6.32A7.85 7.85 0 0 0 12 4a7.94 7.94 0 0 0-6.9 11.9L4 20l4.2-1.1A7.9 7.9 0 0 0 12 19.9a7.94 7.94 0 0 0 5.6-13.58ZM12 18.56a6.6 6.6 0 0 1-3.36-.92l-.24-.14-2.5.65.67-2.43-.16-.25a6.59 6.59 0 1 1 5.59 3.09Zm3.61-4.94c-.2-.1-1.17-.58-1.35-.64s-.31-.1-.44.1-.51.64-.62.77-.23.15-.42.05a5.42 5.42 0 0 1-1.6-.99 6 6 0 0 1-1.1-1.38c-.12-.2 0-.31.08-.41s.2-.23.3-.35a1.34 1.34 0 0 0 .2-.33.37.37 0 0 0 0-.35c0-.1-.44-1.07-.6-1.46s-.32-.34-.44-.34h-.38a.72.72 0 0 0-.52.24 2.19 2.19 0 0 0-.69 1.63 3.82 3.82 0 0 0 .8 2.02 8.72 8.72 0 0 0 3.34 2.95c.47.2.83.32 1.11.41a2.69 2.69 0 0 0 1.23.08 2 2 0 0 0 1.32-.93 1.63 1.63 0 0 0 .11-.93c-.04-.09-.17-.14-.37-.24Z"></path></svg>
+            <div style="font-size:12.5px; color:#128C3E; line-height:1.4;">Your order has been sent to our team on WhatsApp. <span style="color:#555;">Didn't open? Tap below.</span></div>
+          </div>
+        </div>
+        <div style="border-top:1px solid rgba(42,38,32,0.1); padding:20px 26px; display:flex; flex-direction:column; gap:12px;">
+          <button onClick="{{ waOrderResend }}" style="display:flex; align-items:center; justify-content:center; gap:9px; background:#25D366; color:#fff; font-size:15px; font-weight:700; padding:15px; border-radius:999px; border:none; cursor:pointer;">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="#fff"><path d="M17.6 6.32A7.85 7.85 0 0 0 12 4a7.94 7.94 0 0 0-6.9 11.9L4 20l4.2-1.1A7.9 7.9 0 0 0 12 19.9a7.94 7.94 0 0 0 5.6-13.58ZM12 18.56a6.6 6.6 0 0 1-3.36-.92l-.24-.14-2.5.65.67-2.43-.16-.25a6.59 6.59 0 1 1 5.59 3.09Zm3.61-4.94c-.2-.1-1.17-.58-1.35-.64s-.31-.1-.44.1-.51.64-.62.77-.23.15-.42.05a5.42 5.42 0 0 1-1.6-.99 6 6 0 0 1-1.1-1.38c-.12-.2 0-.31.08-.41s.2-.23.3-.35a1.34 1.34 0 0 0 .2-.33.37.37 0 0 0 0-.35c0-.1-.44-1.07-.6-1.46s-.32-.34-.44-.34h-.38a.72.72 0 0 0-.52.24 2.19 2.19 0 0 0-.69 1.63 3.82 3.82 0 0 0 .8 2.02 8.72 8.72 0 0 0 3.34 2.95c.47.2.83.32 1.11.41a2.69 2.69 0 0 0 1.23.08 2 2 0 0 0 1.32-.93 1.63 1.63 0 0 0 .11-.93c-.04-.09-.17-.14-.37-.24Z"></path></svg>
+            Send order via WhatsApp
+          </button>
+          <div style="display:flex; gap:12px;">
+            <button onClick="{{ closeCart }}" style="flex:0 0 auto; background:none; border:1px solid rgba(42,38,32,0.2); color:#555; font-size:14px; font-weight:600; padding:14px 22px; border-radius:999px; cursor:pointer;">Done</button>
+            <button onClick="{{ printReceipt }}" style="flex:1; display:flex; align-items:center; justify-content:center; gap:9px; background:#008545; color:#f4ede1; font-size:15px; font-weight:600; padding:14px; border-radius:999px; border:none; cursor:pointer;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#f4ede1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+              Print / Save PDF
+            </button>
+          </div>
+        </div>
+      </sc-if>
+
+    </aside>
+  </sc-if>
+
+  <!-- ============ HIDDEN FEEDBACK SIDEBAR ============ -->
+  <button onClick="{{ toggleFeedback }}" style="position:fixed; top:50%; right:0; transform:translateY(-50%) rotate(0deg); transform-origin:bottom right; z-index:250; background:#00532b; color:#f4ede1; border:none; cursor:pointer; font-size:12px; font-weight:600; letter-spacing:0.08em; padding:14px 10px; border-radius:10px 0 0 10px; writing-mode:vertical-rl; text-orientation:mixed; box-shadow:-4px 0 14px rgba(0,0,0,0.14);">FEEDBACK</button>
+
+  <sc-if value="{{ feedbackOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ toggleFeedback }}" style="position:fixed; inset:0; background:rgba(20,18,15,0.3); z-index:310;"></div>
+    <aside style="position:fixed; top:0; right:0; bottom:0; width:min(380px, 100vw); background:#FFFFFF; z-index:311; box-shadow:-12px 0 40px rgba(0,0,0,0.18); display:flex; flex-direction:column;">
+      <div style="background:#00532b; color:#f4ede1; padding:26px 26px 22px;">
+        <div style="font-family:'Playfair Display', serif; font-size:22px; font-weight:500;">Tell us what you think</div>
+        <div style="font-size:13px; color:#9fd6b8; margin-top:4px;">Help us make Changi Canopy better.</div>
+      </div>
+      <div style="flex:1; overflow-y:auto; padding:24px 26px;">
+        <sc-if value="{{ feedbackSent }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align:center; padding:40px 10px; color:#008545;">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#008545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:14px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            <div style="font-size:16px; font-weight:600; color:#222;">Thank you!</div>
+            <div style="font-size:13px; color:#555; margin-top:6px;">Your feedback has been recorded.</div>
+            <button onClick="{{ resetFeedback }}" style="margin-top:22px; background:none; border:1px solid rgba(42,38,32,0.2); color:#008545; font-size:13px; font-weight:600; padding:10px 22px; border-radius:999px; cursor:pointer;">Send another</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ feedbackForm }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <label style="display:block; font-size:12px; font-weight:600; color:#555; margin-bottom:8px;">How would you rate your visit?</label>
+            <div style="display:flex; gap:8px; margin-bottom:20px;">
+              <sc-for list="{{ ratingStars }}" as="s" hint-placeholder-count="5">
+                <button onClick="{{ s.onClick }}" style="{{ s.style }}">★</button>
+              </sc-for>
+            </div>
+            <label style="display:block; font-size:12px; font-weight:600; color:#555; margin-bottom:6px;">Name (optional)</label>
+            <input value="{{ fbName }}" onInput="{{ onFbName }}" placeholder="Your name" style="width:100%; padding:11px 13px; border:1px solid rgba(42,38,32,0.15); border-radius:9px; font-size:14px; margin-bottom:16px; font-family:'Lato',sans-serif;" />
+            <label style="display:block; font-size:12px; font-weight:600; color:#555; margin-bottom:6px;">Your feedback</label>
+            <textarea value="{{ fbMessage }}" onInput="{{ onFbMessage }}" rows="5" placeholder="What did you love? What could be better?" style="width:100%; padding:11px 13px; border:1px solid rgba(42,38,32,0.15); border-radius:9px; font-size:14px; font-family:'Lato',sans-serif; resize:vertical;"></textarea>
+            <button onClick="{{ submitFeedback }}" style="width:100%; margin-top:20px; background:#008545; color:#f4ede1; font-size:15px; font-weight:600; padding:14px; border-radius:999px; border:none; cursor:pointer;">Send feedback</button>
+          </div>
+        </sc-if>
+      </div>
+    </aside>
+  </sc-if>
+
+  <sc-if value="{{ toastVisible }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed; bottom:28px; left:50%; transform:translateX(-50%); background:#222222; color:#fff; font-size:14px; font-weight:500; padding:14px 26px; border-radius:999px; box-shadow:0 8px 24px rgba(0,0,0,0.2); z-index:400;">{{ toastMessage }}</div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const PRODUCTS = [
+  { id: 'monstera', name: 'Monstera Deliciosa', light: 'Bright, indirect light', category: 'bright', price: 48, blurb: 'Bold split leaves that fill a corner fast. A statement plant for beginners and collectors alike.', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055759_28ca2885-1cc6-48e1-829c-63fcb9183f6a.png' },
+  { id: 'fiddle', name: 'Fiddle Leaf Fig', light: 'Bright, filtered light', category: 'bright', price: 62, blurb: 'Sculptural violin-shaped leaves. The classic living-room centerpiece.', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055800_3075d05d-7bdf-42f5-ac92-5820dd17901c.png' },
+  { id: 'snake', name: 'Snake Plant', light: 'Low to bright light', category: 'low', price: 34, blurb: 'Nearly indestructible. Thrives on neglect and purifies the air while it\u2019s at it.', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055802_26fd8383-1871-4320-bf8a-8cac46e3b513.png' },
+  { id: 'pothos', name: 'Golden Pothos', light: 'Low to medium light', category: 'low', price: 28, blurb: 'Trailing vines that forgive missed waterings. Great for shelves and hanging planters.', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055803_bf68b781-2764-4665-84c2-06c7c72227f6.png' },
+  { id: 'succulent', name: 'Succulent Trio', light: 'Bright, direct light', category: 'bright', price: 26, blurb: 'Three low-water succulents potted together for a sunny windowsill.', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055805_8842c215-dce2-49c5-9360-c146fb0aa8cb.png' },
+  { id: 'rubber', name: 'Rubber Plant', light: 'Medium, indirect light', category: 'medium', price: 44, blurb: 'Glossy, deep-green leaves and an easygoing nature. Handsome in any room.', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055806_27a02e29-ac86-49cd-9cd3-4aab6f9b0379.png' },
+  { id: 'sunflower', name: 'Sunflower', light: 'Bright, direct light', category: 'bright', price: 32, blurb: 'A cheerful bloom that tracks the sun. Best on a sunny windowsill or patio.', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_091149_a86c2bf0-d1cf-4394-85cd-c53e6949d312.png' },
+  { id: 'orchid', name: 'Phalaenopsis Orchid', light: 'Medium, indirect light', category: 'medium', price: 56, blurb: 'Elegant, long-lasting blooms. A refined gift or a quiet luxury for yourself.', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_091151_76ac753e-583b-405f-bebf-27375262c198.png' },
+  { id: 'kumquat', name: 'Kumquat Tree', light: 'Bright, direct light', category: 'bright', price: 58, blurb: 'A traditional Chinese New Year lucky plant, laden with small golden fruit for prosperity.', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_091152_6ba414a9-54ab-4b08-a6e0-266d53bb8092.png' },
+  { id: 'luckybamboo', name: 'Lucky Bamboo', light: 'Low to medium light', category: 'low', price: 24, blurb: 'A classic Chinese New Year gift said to bring good fortune. Thrives in water, needs little care.', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_091154_7219698d-5790-412b-8306-5b363cb32c29.png' },
+];
+
+const FILTERS = [
+  { id: 'all', label: 'All plants' },
+  { id: 'low', label: 'Low light' },
+  { id: 'medium', label: 'Medium light' },
+  { id: 'bright', label: 'Bright light' },
+];
+
+const DEFAULT_STOCK = 20;
+const WA_NUMBER = '6588365287';
+const DEFAULT_COSTS = { monstera: 26, fiddle: 34, snake: 18, pothos: 15, succulent: 14, rubber: 24, sunflower: 17, orchid: 30, kumquat: 32, luckybamboo: 12 };
+
+// One-time migration to the reserve-at-order stock model (v2). Stock is no
+// longer deducted when an order is placed — it is reserved, and only deducted
+// from on-hand when the cashier confirms collection. This rebuilds the reserved
+// map from any existing pending orders and restores the previously-deducted
+// quantities back onto on-hand so availability stays identical.
+function migrateInventoryV2() {
+  if ((loadJSON('cc_model_v', 0) || 0) >= 2) return;
+  const orders = loadJSON('cc_orders', []);
+  let inv = loadJSON('cc_inventory', null);
+  if (!inv) { inv = {}; PRODUCTS.forEach((p) => { inv[p.id] = DEFAULT_STOCK; }); }
+  const reserved = {};
+  orders.forEach((o) => {
+    if (!o.status) o.status = 'pending';
+    if (o.phone == null) o.phone = '';
+    (o.items || []).forEach((it) => {
+      if (it.collected == null) it.collected = 0;
+      const outstanding = Math.max(0, it.qty - it.collected);
+      if (o.status !== 'collected' && outstanding > 0) {
+        reserved[it.id] = (reserved[it.id] || 0) + outstanding;
+        inv[it.id] = (inv[it.id] == null ? DEFAULT_STOCK : inv[it.id]) + outstanding;
+      }
+    });
+  });
+  saveJSON('cc_inventory', inv);
+  saveJSON('cc_reserved', reserved);
+  saveJSON('cc_orders', orders);
+  if (!loadJSON('cc_costs', null)) saveJSON('cc_costs', { ...DEFAULT_COSTS });
+  saveJSON('cc_model_v', 2);
+}
+
+function waSend(msg) {
+  window.open('https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(msg), '_blank');
+}
+function orderMessage(o) {
+  const lines = o.items.map((i) => '\u2022 ' + i.name + ' \u00d7' + i.qty + ' \u2014 ' + fmt(i.line)).join('\n');
+  return 'NEW ORDER \u2014 Changi Canopy\n' +
+    'Order: ' + o.id + '\n' +
+    o.date + '\n\n' +
+    'Customer: ' + o.name + '\n' +
+    'Phone: ' + (o.phone || '—') + '\n' +
+    'Email: ' + o.email + '\n' +
+    'Collection — present receipt in-store\n\n' +
+    lines + '\n\n' +
+    'Total: ' + fmt(o.total);
+}
+
+function loadJSON(key, fallback) {
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+  catch (e) { return fallback; }
+}
+function saveJSON(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {}
+}
+function fmt(n) { return '$' + Number(n).toFixed(2); }
+
+class Component extends DCLogic {
+  state = {
+    activeFilter: 'all',
+    cart: loadJSON('cc_cart', {}),          // { id: qty }
+    inventory: loadJSON('cc_inventory', null),
+    reserved: loadJSON('cc_reserved', {}),  // { id: qty reserved by open orders }
+    drawerOpen: false,
+    step: 'cart',                            // cart | checkout | done
+    buyerName: '', buyerPhone: '', buyerEmail: '', buyerAddress: '',
+    checkoutError: '',
+    lastOrder: null,
+    toastVisible: false, toastMessage: '',
+    // feedback
+    feedbackOpen: false, feedbackSent: false,
+    fbName: '', fbMessage: '', fbRating: 0,
+  };
+
+  componentDidMount() {
+    // Normalize to the reserve-at-order model, then load the results.
+    migrateInventoryV2();
+    if (!loadJSON('cc_inventory', null)) {
+      const inv = {};
+      PRODUCTS.forEach((p) => { inv[p.id] = DEFAULT_STOCK; });
+      saveJSON('cc_inventory', inv);
+    }
+    this.setState({ inventory: loadJSON('cc_inventory', {}), reserved: loadJSON('cc_reserved', {}) });
+    // Keep cart/inventory in sync across tabs (e.g. admin resets stock).
+    this._onStorage = (e) => {
+      if (e.key === 'cc_inventory') this.setState({ inventory: loadJSON('cc_inventory', {}) });
+      if (e.key === 'cc_reserved') this.setState({ reserved: loadJSON('cc_reserved', {}) });
+      if (e.key === 'cc_cart') this.setState({ cart: loadJSON('cc_cart', {}) });
+    };
+    window.addEventListener('storage', this._onStorage);
+    this._revealScan();
+    this._onScroll = () => this._revealScan();
+    window.addEventListener('scroll', this._onScroll, { passive: true });
+    window.addEventListener('resize', this._onScroll);
+    // safety net: ensure everything is visible shortly after load
+    this._revealTimer = setTimeout(() => {
+      this._revealEls.forEach((el) => el.classList.add('reveal-in'));
+    }, 1400);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('storage', this._onStorage);
+    window.removeEventListener('scroll', this._onScroll);
+    window.removeEventListener('resize', this._onScroll);
+    clearTimeout(this._toastTimer);
+    clearTimeout(this._revealTimer);
+  }
+
+  _revealEls = [];
+  _revealScan = () => {
+    const h = window.innerHeight || document.documentElement.clientHeight;
+    this._revealEls.forEach((el) => {
+      if (el.classList.contains('reveal-in')) return;
+      const r = el.getBoundingClientRect();
+      if (r.top < h * 0.92 && r.bottom > 0) el.classList.add('reveal-in');
+    });
+  };
+  registerReveal = (el) => {
+    if (el && !this._revealEls.includes(el)) {
+      this._revealEls.push(el);
+      requestAnimationFrame(this._revealScan);
+    }
+  };
+
+  inv() { return this.state.inventory || {}; }
+  onHandFor(id) { const v = this.inv()[id]; return v == null ? DEFAULT_STOCK : v; }
+  reservedFor(id) { return (this.state.reserved || {})[id] || 0; }
+  // What a shopper can still buy = physical on-hand minus already-reserved.
+  stockFor(id) { return Math.max(0, this.onHandFor(id) - this.reservedFor(id)); }
+
+  setFilter = (id) => this.setState({ activeFilter: id });
+
+  toast = (msg) => {
+    this.setState({ toastVisible: true, toastMessage: msg });
+    clearTimeout(this._toastTimer);
+    this._toastTimer = setTimeout(() => this.setState({ toastVisible: false }), 2000);
+  };
+
+  persistCart = (cart) => { saveJSON('cc_cart', cart); this.setState({ cart }); };
+
+  addToCart = (id) => {
+    const cur = this.state.cart[id] || 0;
+    if (cur >= this.stockFor(id)) { this.toast('No more stock available'); return; }
+    const cart = { ...this.state.cart, [id]: cur + 1 };
+    this.persistCart(cart);
+    const p = PRODUCTS.find((x) => x.id === id);
+    this.toast(p.name + ' added to cart');
+  };
+  incItem = (id) => {
+    const cur = this.state.cart[id] || 0;
+    if (cur >= this.stockFor(id)) { this.toast('Reached available stock'); return; }
+    this.persistCart({ ...this.state.cart, [id]: cur + 1 });
+  };
+  decItem = (id) => {
+    const cur = this.state.cart[id] || 0;
+    const cart = { ...this.state.cart };
+    if (cur <= 1) delete cart[id]; else cart[id] = cur - 1;
+    this.persistCart(cart);
+  };
+  removeItem = (id) => {
+    const cart = { ...this.state.cart }; delete cart[id];
+    this.persistCart(cart);
+  };
+
+  openCart = () => this.setState({ drawerOpen: true, step: 'cart' });
+  closeCart = () => this.setState({ drawerOpen: false });
+  goCheckout = () => this.setState({ step: 'checkout', checkoutError: '' });
+  backToCart = () => this.setState({ step: 'cart' });
+
+  onBuyerName = (e) => this.setState({ buyerName: e.target.value });
+  onBuyerPhone = (e) => this.setState({ buyerPhone: e.target.value });
+  onBuyerEmail = (e) => this.setState({ buyerEmail: e.target.value });
+  onBuyerAddress = (e) => this.setState({ buyerAddress: e.target.value });
+
+  placeOrder = () => {
+    if (!this.state.buyerName.trim() || !this.state.buyerPhone.trim()) {
+      this.setState({ checkoutError: 'Please enter your name and a contact phone number.' });
+      return;
+    }
+    const items = Object.entries(this.state.cart).map(([id, qty]) => {
+      const p = PRODUCTS.find((x) => x.id === id);
+      return { id, name: p.name, qty, unit: p.price, line: p.price * qty, collected: 0 };
+    });
+    const total = items.reduce((s, i) => s + i.line, 0);
+    const now = new Date();
+    const orderId = 'CC-' + now.getFullYear() + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0') + '-' + String(Math.floor(Math.random() * 9000) + 1000);
+    const order = {
+      id: orderId,
+      date: now.toLocaleString('en-SG', { dateStyle: 'medium', timeStyle: 'short' }),
+      ts: now.toISOString(),
+      name: this.state.buyerName, phone: this.state.buyerPhone,
+      email: this.state.buyerEmail || '—', address: this.state.buyerAddress,
+      items, total,
+      status: 'pending',   // pending → partial → collected (closed by cashier)
+    };
+    // Reserve stock (do NOT deduct on-hand). Cashier deducts at collection.
+    const reserved = { ...(this.state.reserved || {}) };
+    items.forEach((i) => { reserved[i.id] = (reserved[i.id] || 0) + i.qty; });
+    saveJSON('cc_reserved', reserved);
+    // Record order.
+    const orders = loadJSON('cc_orders', []); orders.push(order); saveJSON('cc_orders', orders);
+    // Clear cart.
+    saveJSON('cc_cart', {});
+    this.setState({ reserved, cart: {}, lastOrder: order, step: 'done' });
+    // Send order details to the shop's WhatsApp (within the click gesture).
+    waSend(orderMessage(order));
+  };
+
+  printReceipt = () => { window.print(); };
+
+  waAsk = () => { waSend('Hi Changi Canopy! I have a question about your plants:'); };
+  waOrderResend = () => { if (this.state.lastOrder) waSend(orderMessage(this.state.lastOrder)); };
+
+  // ---- Feedback ----
+  toggleFeedback = () => this.setState({ feedbackOpen: !this.state.feedbackOpen });
+  onFbName = (e) => this.setState({ fbName: e.target.value });
+  onFbMessage = (e) => this.setState({ fbMessage: e.target.value });
+  setRating = (n) => this.setState({ fbRating: n });
+  submitFeedback = () => {
+    if (!this.state.fbMessage.trim() && this.state.fbRating === 0) { this.toast('Please add a rating or a note'); return; }
+    const all = loadJSON('cc_feedback', []);
+    all.push({ name: this.state.fbName || 'Anonymous', message: this.state.fbMessage, rating: this.state.fbRating, ts: new Date().toISOString() });
+    saveJSON('cc_feedback', all);
+    this.setState({ feedbackSent: true, fbName: '', fbMessage: '', fbRating: 0 });
+  };
+  resetFeedback = () => this.setState({ feedbackSent: false });
+
+  renderVals() {
+    const cart = this.state.cart;
+    const cartIds = Object.keys(cart);
+    const cartCount = cartIds.reduce((s, id) => s + cart[id], 0);
+    const subtotal = cartIds.reduce((s, id) => s + (PRODUCTS.find((p) => p.id === id).price * cart[id]), 0);
+
+    const visibleProducts = PRODUCTS
+      .filter((p) => this.state.activeFilter === 'all' || p.category === this.state.activeFilter)
+      .map((p, i) => {
+        const stock = this.stockFor(p.id);
+        const soldOut = stock <= 0;
+        const low = stock > 0 && stock <= 5;
+        return {
+          ...p,
+          price: fmt(p.price),
+          addToCart: () => this.addToCart(p.id),
+          soldOut,
+          addLabel: soldOut ? 'Sold out' : 'Add to cart',
+          addBtnStyle: 'background:' + (soldOut ? '#c9c0af' : '#008545') + '; color:#f4ede1; font-size:13px; font-weight:600; padding:10px 20px; border-radius:999px; border:none; cursor:' + (soldOut ? 'not-allowed' : 'pointer') + ';',
+          stockLabel: soldOut ? 'Sold out' : (low ? stock + ' left' : ''),
+          stockText: soldOut ? 'Out of stock' : stock + ' in stock',
+          stockTextColor: 'color:' + (soldOut ? '#CC1000' : (low ? '#B37A00' : '#008545')) + ';',
+          stockDotColor: 'background:' + (soldOut ? '#CC1000' : (low ? '#E8A400' : '#008545')) + ';',
+          stockBadgeStyle: 'position:absolute; top:12px; left:12px; font-size:11px; font-weight:700; padding:5px 11px; border-radius:999px; ' + (soldOut ? 'background:#CC1000; color:#fff;' : (low ? 'background:rgba(255,255,255,0.92); color:#CC1000;' : 'display:none;')),
+          revealDelay: (i * 0.06) + 's',
+        };
+      });
+
+    const filters = FILTERS.map((f) => {
+      const active = this.state.activeFilter === f.id;
+      return {
+        label: f.label,
+        onClick: () => this.setFilter(f.id),
+        style: 'padding:10px 20px; border-radius:999px; font-size:13px; font-weight:600; border:1px solid ' + (active ? '#008545' : 'rgba(42,38,32,0.15)') + '; background:' + (active ? '#008545' : 'transparent') + '; color:' + (active ? '#f4ede1' : '#555555') + '; cursor:pointer;',
+      };
+    });
+
+    const cartItems = cartIds.map((id) => {
+      const p = PRODUCTS.find((x) => x.id === id);
+      const qty = cart[id];
+      const incDisabled = qty >= this.stockFor(id);
+      return {
+        id, name: p.name, img: p.img, qty,
+        priceLabel: fmt(p.price),
+        lineLabel: fmt(p.price * qty),
+        inc: () => this.incItem(id), dec: () => this.decItem(id), remove: () => this.removeItem(id),
+        incDisabled,
+        incStyle: 'width:26px; height:26px; border-radius:8px; border:1px solid rgba(42,38,32,0.15); background:#fff; font-size:16px; line-height:1; color:#555; cursor:' + (incDisabled ? 'not-allowed' : 'pointer') + '; opacity:' + (incDisabled ? '0.4' : '1') + ';',
+      };
+    });
+
+    const o = this.state.lastOrder;
+    const orderItems = o ? o.items.map((it) => ({ name: it.name, qty: it.qty, unitLabel: fmt(it.unit), lineLabel: fmt(it.line) })) : [];
+
+    const ratingStars = [1, 2, 3, 4, 5].map((n) => ({
+      onClick: () => this.setRating(n),
+      style: 'font-size:26px; line-height:1; background:none; border:none; cursor:pointer; padding:0; color:' + (n <= this.state.fbRating ? '#E8A400' : '#d8d0bf') + ';',
+    }));
+
+    const step = this.state.step;
+    return {
+      cartCount, hasCart: cartCount > 0,
+      filters, visibleProducts, registerReveal: this.registerReveal,
+      openCart: this.openCart, closeCart: this.closeCart,
+      drawerOpen: this.state.drawerOpen,
+      drawerTitle: step === 'cart' ? 'Your cart' : (step === 'checkout' ? 'Checkout' : 'Confirmation'),
+      stepCart: step === 'cart', stepCheckout: step === 'checkout', stepDone: step === 'done',
+      cartItems, cartEmpty: cartCount === 0,
+      subtotalLabel: fmt(subtotal),
+      goCheckout: this.goCheckout, backToCart: this.backToCart, placeOrder: this.placeOrder,
+      buyerName: this.state.buyerName, buyerPhone: this.state.buyerPhone, buyerEmail: this.state.buyerEmail, buyerAddress: this.state.buyerAddress,
+      onBuyerName: this.onBuyerName, onBuyerPhone: this.onBuyerPhone, onBuyerEmail: this.onBuyerEmail, onBuyerAddress: this.onBuyerAddress,
+      checkoutError: this.state.checkoutError,
+      printReceipt: this.printReceipt,
+      waAsk: this.waAsk, waOrderResend: this.waOrderResend,
+      orderId: o ? o.id : '', orderDate: o ? o.date : '', orderName: o ? o.name : '', orderPhone: o ? o.phone : '', orderEmail: o ? o.email : '',
+      orderAddress: o ? o.address : '', orderItems, orderSubtotal: o ? fmt(o.total) : '',
+      // feedback
+      feedbackOpen: this.state.feedbackOpen, toggleFeedback: this.toggleFeedback,
+      feedbackSent: this.state.feedbackSent, feedbackForm: !this.state.feedbackSent,
+      resetFeedback: this.resetFeedback,
+      fbName: this.state.fbName, fbMessage: this.state.fbMessage,
+      onFbName: this.onFbName, onFbMessage: this.onFbMessage,
+      ratingStars, submitFeedback: this.submitFeedback,
+      toastVisible: this.state.toastVisible, toastMessage: this.state.toastMessage,
+    };
+  }
+}
+</script>
+</body>
+</html>

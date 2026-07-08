@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Lato', sans-serif; }
+    a { color: #008545; }
+    a:hover { color: #CC1000; }
+    @keyframes revealUp {
+      0% { opacity: 0; transform: translateY(30px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes revealPop {
+      0% { opacity: 0; transform: translateY(40px) scale(0.94); filter: blur(6px); }
+      60% { opacity: 1; }
+      100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+    }
+    .reveal { opacity: 0; }
+    .reveal-in.reveal-up { animation: revealUp 0.8s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .reveal-in.reveal-pop { animation: revealPop 0.7s cubic-bezier(0.16,1,0.3,1) forwards; }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal, .reveal-in { animation: none; opacity: 1; }
+    }
+  </style>
+</helmet>
+
+<div style="min-height:100vh; background:#FFFFFF; color:#222222; letter-spacing:-0.01em;">
+
+  <nav style="position:sticky; top:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:18px 32px; background:rgba(246,241,231,0.85); backdrop-filter:blur(10px); border-bottom:1px solid rgba(42,38,32,0.08);">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <svg width="24" height="24" viewBox="0 0 256 256" fill="#008545"><path d="M 256 256 L 128 256 L 0 128 L 128 128 Z M 256 128 L 128 128 L 0 0 L 128 0 Z"></path></svg>
+      <span style="font-family:'Playfair Display', serif; font-style:italic; font-size:22px;">Changi Canopy</span>
+    </div>
+    <div style="display:flex; gap:4px; align-items:center; background:rgba(42,38,32,0.05); border-radius:999px; padding:6px;">
+      <a href="index.html" style="padding:8px 18px; border-radius:999px; font-size:14px; font-weight:500; color:#555555; text-decoration:none;">Home</a>
+      <a href="shop.html" style="padding:8px 18px; border-radius:999px; font-size:14px; font-weight:500; color:#555555; text-decoration:none;">Shop</a>
+      <a href="care-assistant.html" style="padding:8px 18px; border-radius:999px; font-size:14px; font-weight:500; color:#222222; background:#fff; text-decoration:none;">Plant Care</a>
+    </div>
+    <a href="shop.html" style="background:#008545; color:#f4ede1; font-size:14px; font-weight:600; padding:11px 22px; border-radius:999px; text-decoration:none;">Shop Now</a>
+  </nav>
+
+  <section style="max-width:900px; margin:0 auto; padding:80px 32px 48px; text-align:center;">
+    <div ref="{{ registerReveal }}" class="reveal reveal-up" style="font-size:12px; letter-spacing:0.16em; text-transform:uppercase; color:#CC1000; font-weight:600; margin-bottom:16px;">Plant Care Assistant</div>
+    <h1 ref="{{ registerReveal }}" class="reveal reveal-up" style="animation-delay:0.1s; font-family:'Playfair Display', serif; font-weight:500; font-size:clamp(32px,4.5vw,50px); margin:0 0 16px;">What space are you planting for?</h1>
+    <p ref="{{ registerReveal }}" class="reveal reveal-up" style="animation-delay:0.2s; font-size:16px; color:#555555; max-width:520px; margin:0 auto;">Pick a setting and we'll recommend plants suited to it, plus how to keep each one thriving.</p>
+  </section>
+
+  <section style="max-width:1100px; margin:0 auto; padding:0 32px 100px;">
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:24px; margin-bottom:64px;">
+      <sc-for list="{{ settings }}" as="s" hint-placeholder-count="4">
+        <button ref="{{ registerReveal }}" class="reveal reveal-pop" onClick="{{ s.onClick }}" onMouseEnter="{{ s.onHoverEnter }}" onMouseLeave="{{ s.onHoverLeave }}" style="{{ s.cardStyle }}">
+          <div style="width:100%; aspect-ratio:4/5; position:relative; overflow:hidden;">
+            <div style="position:absolute; inset:0; background-image:url('{{ s.img }}'); background-size:cover; background-position:center;"></div>
+            <sc-if value="{{ s.isHovered }}" hint-placeholder-val="{{ false }}">
+              <video autoplay loop muted playsinline style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;">
+                <source src="{{ s.video }}" type="video/mp4" />
+              </video>
+            </sc-if>
+          </div>
+          <div style="padding:16px 18px; text-align:left;">
+            <div style="font-family:'Playfair Display', serif; font-size:17px; font-weight:500; color:#222222;">{{ s.label }}</div>
+            <div style="font-size:12px; color:#888888; margin-top:2px;">{{ s.sub }}</div>
+          </div>
+        </button>
+      </sc-for>
+    </div>
+
+    <sc-if value="{{ hasSelection }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <h2 class="reveal reveal-up reveal-in" style="font-family:'Playfair Display', serif; font-weight:500; font-size:clamp(24px,3vw,32px); margin:0 0 8px;">{{ resultTitle }}</h2>
+        <p class="reveal reveal-up reveal-in" style="animation-delay:0.1s; font-size:15px; color:#555555; margin:0 0 36px; max-width:600px;">{{ resultIntro }}</p>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:24px;">
+          <sc-for list="{{ recommendations }}" as="r" hint-placeholder-count="3">
+            <div class="reveal reveal-pop reveal-in" style="animation-delay:{{ r.revealDelay }}; background:#fff; border-radius:16px; padding:24px; box-shadow:0 1px 3px rgba(42,38,32,0.06);">
+              <div style="display:flex; align-items:center; gap:14px; margin-bottom:14px;">
+                <div style="width:56px; height:56px; border-radius:12px; background-image:url('{{ r.img }}'); background-size:cover; background-position:center; flex-shrink:0;"></div>
+                <div>
+                  <div style="font-family:'Playfair Display', serif; font-size:17px; font-weight:500;">{{ r.name }}</div>
+                  <div style="font-size:12px; color:#CC1000; font-weight:600;">{{ r.price }}</div>
+                </div>
+              </div>
+              <div style="font-size:13px; color:#555555; line-height:1.6; margin-bottom:14px;">{{ r.careTip }}</div>
+              <a href="shop.html" style="font-size:13px; font-weight:600; color:#008545; text-decoration:none; border-bottom:1px solid #008545;">Shop this plant →</a>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+  </section>
+
+  <footer style="background:#00532b; color:#eaf5ee; padding:56px 32px 32px;">
+    <div style="max-width:1200px; margin:0 auto; display:flex; flex-direction:column; align-items:center; gap:16px; text-align:center;">
+      <div style="display:flex; gap:24px; font-size:13px; flex-wrap:wrap; justify-content:center;">
+        <a href="terms.html" style="color:#eaf5ee; text-decoration:none;">Terms &amp; Conditions</a>
+        <a href="privacy.html" style="color:#eaf5ee; text-decoration:none;">Privacy</a>
+        <a href="disclaimer.html" style="color:#eaf5ee; text-decoration:none;">Disclaimer</a>
+      </div>
+      <div style="font-size:12px; color:#9fd6b8;">© 2026 Changi Canopy. All rights reserved.</div>
+    </div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const SETTINGS = {
+  living: {
+    label: 'Living Room',
+    sub: 'Shared, well-lit space',
+    img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055753_fe67c479-59e8-4df6-8a62-31c1f523ef9d.png',
+    video: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_091307_e28cb748-977f-453d-ac39-00b9479b9bc5.mp4',
+    title: 'For your living room',
+    intro: 'Living rooms usually get the most natural light in the home — good news for bigger, showier plants.',
+    recs: [
+      { name: 'Monstera Deliciosa', price: '$48', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055759_28ca2885-1cc6-48e1-829c-63fcb9183f6a.png', careTip: 'Water when the top 2 inches of soil are dry, about once a week. Wipe leaves monthly to keep them dust-free and glossy.' },
+      { name: 'Fiddle Leaf Fig', price: '$62', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055800_3075d05d-7bdf-42f5-ac92-5820dd17901c.png', careTip: 'Keep it in one bright spot — it dislikes being moved. Water weekly and rotate a quarter turn for even growth.' },
+      { name: 'Rubber Plant', price: '$44', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055806_27a02e29-ac86-49cd-9cd3-4aab6f9b0379.png', careTip: 'Tolerant of medium light. Let soil dry between waterings and mist occasionally for shine.' },
+    ],
+  },
+  office: {
+    label: 'Home Office',
+    sub: 'Desk-side, low fuss',
+    img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055755_58b3e311-5eac-463e-b794-31c4a76f6bf6.png',
+    video: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_091300_c4548823-279a-48ad-96fc-d9dbbf53b1dd.mp4',
+    title: 'For your home office',
+    intro: 'Desk plants need to survive inconsistent light and the occasional forgotten watering — these hold up.',
+    recs: [
+      { name: 'Golden Pothos', price: '$28', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055803_bf68b781-2764-4665-84c2-06c7c72227f6.png', careTip: 'Water every 1-2 weeks, letting soil dry out fully in between. Trails beautifully off a shelf or monitor stand.' },
+      { name: 'Succulent Trio', price: '$26', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055805_8842c215-dce2-49c5-9360-c146fb0aa8cb.png', careTip: 'Water sparingly, about every 2-3 weeks. Needs a sunny windowsill or a bright desk lamp nearby.' },
+      { name: 'Snake Plant', price: '$34', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055802_26fd8383-1871-4320-bf8a-8cac46e3b513.png', careTip: 'Water once every 2-3 weeks. Handles dim office corners better than almost anything else.' },
+    ],
+  },
+  bedroom: {
+    label: 'Bedroom',
+    sub: 'Calm, low light',
+    img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055756_5045a75e-03be-46a0-8111-c74c358d9061.png',
+    video: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_091303_3cb69fa0-00dd-4167-be35-42d2657ec8d5.mp4',
+    title: 'For your bedroom',
+    intro: 'Bedrooms tend to be softer-lit and calmer — plants here should ask little and settle in quietly.',
+    recs: [
+      { name: 'Snake Plant', price: '$34', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055802_26fd8383-1871-4320-bf8a-8cac46e3b513.png', careTip: 'Releases oxygen at night. Water every 2-3 weeks and keep on a nightstand or dresser away from cold drafts.' },
+      { name: 'Golden Pothos', price: '$28', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055803_bf68b781-2764-4665-84c2-06c7c72227f6.png', careTip: 'Handles low light well. Water when the topsoil feels dry, roughly every 10 days.' },
+      { name: 'Rubber Plant', price: '$44', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055806_27a02e29-ac86-49cd-9cd3-4aab6f9b0379.png', careTip: 'Prefers gentle, indirect light. Water weekly and keep away from heating vents.' },
+    ],
+  },
+  festive: {
+    label: 'Festive Setting',
+    sub: 'Holiday & seasonal decor',
+    img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055757_6fcc66e9-7dfa-4b47-9485-b7596ab2b66c.png',
+    video: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_091304_5b651fa3-f65d-4150-9229-677d9c3b473c.mp4',
+    title: 'For your festive table',
+    intro: 'Seasonal displays call for compact, fragrant, photogenic plants that can handle a few weeks in the spotlight.',
+    recs: [
+      { name: 'Succulent Trio', price: '$26', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055805_8842c215-dce2-49c5-9360-c146fb0aa8cb.png', careTip: 'Great as a centerpiece cluster. Water sparingly — every 2-3 weeks — even during the busy season.' },
+      { name: 'Golden Pothos', price: '$28', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055803_bf68b781-2764-4665-84c2-06c7c72227f6.png', careTip: 'Drapes nicely around mantels and garlands. Keep away from direct heat sources like fireplaces.' },
+      { name: 'Snake Plant', price: '$34', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055802_26fd8383-1871-4320-bf8a-8cac46e3b513.png', careTip: 'Structural and low-maintenance next to candles and decor. Water every 2-3 weeks.' },
+    ],
+  },
+};
+
+class Component extends DCLogic {
+  state = { selected: null, hoveredKey: null };
+
+  // Scroll-triggered entrance for the setting-picker cards (above-the-fold
+  // items still work: the observer fires immediately if already visible).
+  _revealEls = [];
+  _observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('reveal-in');
+        this._observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  registerReveal = (el) => {
+    if (el && !this._revealEls.includes(el)) {
+      this._revealEls.push(el);
+      this._observer.observe(el);
+    }
+  };
+
+  componentWillUnmount() {
+    this._observer.disconnect();
+  }
+
+  select = (key) => this.setState({ selected: key });
+
+  hoverEnter = (key) => this.setState({ hoveredKey: key });
+  hoverLeave = () => this.setState({ hoveredKey: null });
+
+  renderVals() {
+    const selected = this.state.selected;
+    const settings = Object.keys(SETTINGS).map((key) => {
+      const s = SETTINGS[key];
+      const active = selected === key;
+      return {
+        label: s.label,
+        sub: s.sub,
+        img: s.img,
+        video: s.video,
+        isHovered: this.state.hoveredKey === key,
+        onClick: () => this.select(key),
+        onHoverEnter: () => this.hoverEnter(key),
+        onHoverLeave: this.hoverLeave,
+        cardStyle: 'text-align:left; padding:0; border-radius:16px; overflow:hidden; background:#fff; border:2px solid ' + (active ? '#008545' : 'transparent') + '; box-shadow:0 1px 3px rgba(42,38,32,0.08); cursor:pointer; display:block;',
+      };
+    });
+
+    const current = selected ? SETTINGS[selected] : null;
+    const recommendations = current ? current.recs.map((r, i) => ({ ...r, revealDelay: (i * 0.1) + 's' })) : [];
+
+    return {
+      settings,
+      hasSelection: !!current,
+      resultTitle: current ? current.title : '',
+      resultIntro: current ? current.intro : '',
+      recommendations,
+      registerReveal: this.registerReveal,
+    };
+  }
+}
+</script>
+</body>
+</html>

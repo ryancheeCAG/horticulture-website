@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Lato', sans-serif; }
+    a { color: #008545; }
+    a:hover { color: #CC1000; }
+    input[type="number"], input[type="date"] { font-family: 'Lato', sans-serif; }
+    input[type="number"]:focus, input[type="date"]:focus { outline: 2px solid #008545; outline-offset: 1px; }
+    @media (max-width: 720px) {
+      .admin-nav { padding: 12px 16px !important; flex-wrap: wrap; gap: 10px; }
+      .admin-grid { grid-template-columns: 1fr !important; }
+      .metric-grid { grid-template-columns: 1fr !important; }
+    }
+  </style>
+</helmet>
+
+<div style="min-height:100vh; background:#FFFFFF; color:#222222; letter-spacing:-0.01em;">
+
+  <sc-if value="{{ notAuthed }}" hint-placeholder-val="{{ true }}">
+    <div style="min-height:100vh; background:#00532b; display:flex; align-items:center; justify-content:center; padding:24px;">
+      <div style="width:100%; max-width:400px; background:#fff; border-radius:20px; padding:40px 36px; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+          <svg width="26" height="26" viewBox="0 0 256 256" fill="#008545"><path d="M 256 256 L 128 256 L 0 128 L 128 128 Z M 256 128 L 128 128 L 0 0 L 128 0 Z"></path></svg>
+          <span style="font-family:'Playfair Display', serif; font-style:italic; font-size:22px;">Changi Canopy</span>
+        </div>
+        <h1 style="font-family:'Playfair Display', serif; font-weight:500; font-size:24px; margin:0 0 6px;">Admin sign-in</h1>
+        <p style="font-size:13px; color:#888; margin:0 0 26px;">Enter your credentials to access the dashboard.</p>
+        <label style="display:block; font-size:12px; font-weight:600; color:#555; margin-bottom:6px;">Username</label>
+        <input value="{{ loginUser }}" onInput="{{ onLoginUser }}" onKeyDown="{{ onLoginKey }}" placeholder="admin" style="width:100%; padding:12px 13px; border:1px solid rgba(42,38,32,0.15); border-radius:9px; font-size:14px; margin-bottom:16px; font-family:'Lato',sans-serif;" />
+        <label style="display:block; font-size:12px; font-weight:600; color:#555; margin-bottom:6px;">Password</label>
+        <input type="password" value="{{ loginPass }}" onInput="{{ onLoginPass }}" onKeyDown="{{ onLoginKey }}" placeholder="••••••••" style="width:100%; padding:12px 13px; border:1px solid rgba(42,38,32,0.15); border-radius:9px; font-size:14px; margin-bottom:20px; font-family:'Lato',sans-serif;" />
+        <sc-if value="{{ loginError }}" hint-placeholder-val="{{ false }}">
+          <div style="color:#CC1000; font-size:13px; font-weight:600; margin-bottom:16px;">{{ loginError }}</div>
+        </sc-if>
+        <button onClick="{{ doLogin }}" style="width:100%; background:#008545; color:#f4ede1; font-size:15px; font-weight:600; padding:14px; border-radius:999px; border:none; cursor:pointer;">Sign in</button>
+        <a href="index.html?home=1" style="display:block; text-align:center; font-size:13px; color:#888; margin-top:18px; text-decoration:none;">← Back to site</a>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ authed }}" hint-placeholder-val="{{ false }}">
+  <nav class="admin-nav" style="display:flex; align-items:center; justify-content:space-between; padding:18px 32px; background:#00532b; border-bottom:1px solid rgba(255,255,255,0.08);">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <svg width="22" height="22" viewBox="0 0 256 256" fill="#f4ede1"><path d="M 256 256 L 128 256 L 0 128 L 128 128 Z M 256 128 L 128 128 L 0 0 L 128 0 Z"></path></svg>
+      <span style="font-family:'Playfair Display', serif; font-style:italic; font-size:20px; color:#f4ede1;">Changi Canopy</span>
+      <span style="font-size:12px; color:#7ad9a3; background:rgba(255,255,255,0.08); padding:4px 10px; border-radius:999px; margin-left:8px;">Admin</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.08); border-radius:999px; padding:5px;">
+      <button onClick="{{ showPnl }}" style="{{ tabPnlStyle }}">P&amp;L</button>
+      <button onClick="{{ showInv }}" style="{{ tabInvStyle }}">Inventory</button>
+    </div>
+    <div style="display:flex; align-items:center; gap:16px;">
+      <a href="index.html?home=1" style="color:#eaf5ee; font-size:13px; text-decoration:none;">← Back to site</a>
+      <button onClick="{{ logout }}" style="background:rgba(255,255,255,0.1); color:#eaf5ee; border:none; font-size:13px; font-weight:600; padding:7px 16px; border-radius:999px; cursor:pointer;">Sign out</button>
+    </div>
+  </nav>
+
+  <sc-if value="{{ onPnl }}" hint-placeholder-val="{{ true }}">
+  <section style="max-width:1100px; margin:0 auto; padding:56px 32px 100px;">
+    <h1 style="font-family:'Playfair Display', serif; font-weight:500; font-size:clamp(28px,3.5vw,38px); margin:0 0 8px;">Profit &amp; Loss</h1>
+    <p style="font-size:14px; color:#555555; margin:0 0 40px;">Log daily revenue and costs. Weekly and monthly totals roll up automatically.</p>
+
+    <div class="admin-grid" style="display:grid; grid-template-columns:1.1fr 1.4fr; gap:32px; align-items:start;">
+
+      <div style="background:#fff; border-radius:16px; padding:28px; box-shadow:0 1px 3px rgba(42,38,32,0.06);">
+        <h2 style="font-family:'Playfair Display', serif; font-weight:500; font-size:19px; margin:0 0 20px;">Log an entry</h2>
+
+        <label style="display:block; font-size:12px; font-weight:600; color:#555555; margin-bottom:6px;">Date</label>
+        <input type="date" value="{{ formDate }}" onChange="{{ onDateChange }}" style="width:100%; padding:10px 12px; border:1px solid rgba(42,38,32,0.15); border-radius:8px; font-size:14px; margin-bottom:18px;" />
+
+        <label style="display:block; font-size:12px; font-weight:600; color:#555555; margin-bottom:6px;">Revenue ($)</label>
+        <input type="number" min="0" step="0.01" value="{{ formRevenue }}" onChange="{{ onRevenueChange }}" placeholder="0.00" style="width:100%; padding:10px 12px; border:1px solid rgba(42,38,32,0.15); border-radius:8px; font-size:14px; margin-bottom:18px;" />
+
+        <label style="display:block; font-size:12px; font-weight:600; color:#555555; margin-bottom:6px;">Costs ($)</label>
+        <input type="number" min="0" step="0.01" value="{{ formCosts }}" onChange="{{ onCostsChange }}" placeholder="0.00" style="width:100%; padding:10px 12px; border:1px solid rgba(42,38,32,0.15); border-radius:8px; font-size:14px; margin-bottom:24px;" />
+
+        <button onClick="{{ onAddEntry }}" style="width:100%; background:#008545; color:#f4ede1; font-size:14px; font-weight:600; padding:13px; border-radius:999px; border:none; cursor:pointer;">Add entry</button>
+
+        <sc-if value="{{ hasEntries }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:28px; border-top:1px solid rgba(42,38,32,0.08); padding-top:20px;">
+            <div style="font-size:12px; font-weight:600; color:#555555; margin-bottom:12px;">Recent entries</div>
+            <div style="display:flex; flex-direction:column; gap:8px; max-height:220px; overflow-y:auto;">
+              <sc-for list="{{ recentEntries }}" as="e" hint-placeholder-count="3">
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; padding:8px 0; border-bottom:1px solid rgba(42,38,32,0.05);">
+                  <span style="color:#555555;">{{ e.date }}</span>
+                  <span style="color:#008545; font-weight:600;">{{ e.revenue }}</span>
+                  <span style="color:#CC1000;">{{ e.costs }}</span>
+                  <span style="font-weight:600;">{{ e.profit }}</span>
+                  <button onClick="{{ e.onRemove }}" style="background:none; border:none; color:#b3a998; cursor:pointer; font-size:16px; line-height:1;">×</button>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:20px;">
+        <div class="metric-grid" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px;">
+          <div style="background:#00532b; color:#f4ede1; border-radius:16px; padding:22px;">
+            <div style="font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:#7ad9a3; margin-bottom:10px;">Today</div>
+            <div style="font-family:'Playfair Display', serif; font-size:26px; font-weight:500;">{{ dailyProfit }}</div>
+            <div style="font-size:12px; color:#7ad9a3; margin-top:6px;">Rev {{ dailyRevenue }} · Cost {{ dailyCosts }}</div>
+          </div>
+          <div style="background:#fff; border-radius:16px; padding:22px; box-shadow:0 1px 3px rgba(42,38,32,0.06);">
+            <div style="font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:#888888; margin-bottom:10px;">This week</div>
+            <div style="font-family:'Playfair Display', serif; font-size:26px; font-weight:500; color:#008545;">{{ weeklyProfit }}</div>
+            <div style="font-size:12px; color:#888888; margin-top:6px;">Rev {{ weeklyRevenue }} · Cost {{ weeklyCosts }}</div>
+          </div>
+          <div style="background:#fff; border-radius:16px; padding:22px; box-shadow:0 1px 3px rgba(42,38,32,0.06);">
+            <div style="font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:#888888; margin-bottom:10px;">This month</div>
+            <div style="font-family:'Playfair Display', serif; font-size:26px; font-weight:500; color:#008545;">{{ monthlyProfit }}</div>
+            <div style="font-size:12px; color:#888888; margin-top:6px;">Rev {{ monthlyRevenue }} · Cost {{ monthlyCosts }}</div>
+          </div>
+        </div>
+
+        <div style="background:#fff; border-radius:16px; padding:28px; box-shadow:0 1px 3px rgba(42,38,32,0.06); flex:1;">
+          <div style="font-size:12px; font-weight:600; color:#555555; margin-bottom:20px;">Daily profit, last 14 days</div>
+          <div style="display:flex; align-items:flex-end; gap:6px; height:180px;">
+            <sc-for list="{{ chartBars }}" as="b" hint-placeholder-count="14">
+              <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%;" title="{{ b.tooltip }}">
+                <div style="{{ b.barStyle }}"></div>
+                <div style="font-size:9px; color:#b3a998; margin-top:6px; writing-mode:vertical-rl; text-orientation:mixed;">{{ b.label }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+  </sc-if>
+
+  <!-- ============ INVENTORY ============ -->
+  <sc-if value="{{ onInv }}" hint-placeholder-val="{{ false }}">
+  <section style="max-width:1100px; margin:0 auto; padding:56px 32px 100px;">
+    <h1 style="font-family:'Playfair Display', serif; font-weight:500; font-size:clamp(28px,3.5vw,38px); margin:0 0 8px;">Inventory</h1>
+    <p style="font-size:14px; color:#555555; margin:0 0 32px;">Set physical <strong>on-hand</strong> counts and <strong>unit cost</strong> per plant. “Reserved” is stock committed to open orders; “available” is what shoppers can still buy. Cost feeds the P&amp;L when the cashier closes a sale.</p>
+
+    <div style="display:flex; flex-wrap:wrap; align-items:center; gap:14px; background:#00532b; color:#f4ede1; border-radius:16px; padding:20px 24px; margin-bottom:24px;">
+      <label style="display:flex; align-items:center; gap:9px; font-size:14px; font-weight:600; cursor:pointer;">
+        <input type="checkbox" checked="{{ allSelected }}" onChange="{{ toggleAll }}" style="width:17px; height:17px; accent-color:#7ad9a3; cursor:pointer;" />
+        Select all
+      </label>
+      <span style="font-size:13px; color:#9fd6b8;">{{ selectedCount }} selected</span>
+      <div style="flex:1;"></div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span style="font-size:13px; color:#9fd6b8;">Set quantity</span>
+        <input type="number" min="0" value="{{ bulkQty }}" onChange="{{ onBulkQty }}" style="width:90px; padding:9px 11px; border:none; border-radius:8px; font-size:14px; font-family:'Lato',sans-serif;" />
+        <button onClick="{{ applyBulk }}" disabled="{{ applyDisabled }}" style="{{ applyBtnStyle }}">Apply to selected</button>
+      </div>
+    </div>
+
+    <div style="background:#fff; border-radius:16px; box-shadow:0 1px 3px rgba(42,38,32,0.06); overflow:hidden;">
+      <sc-for list="{{ invRows }}" as="r" hint-placeholder-count="6">
+        <div style="display:flex; align-items:center; gap:16px; padding:14px 22px; border-bottom:1px solid rgba(42,38,32,0.06);">
+          <input type="checkbox" checked="{{ r.selected }}" onChange="{{ r.toggle }}" style="width:17px; height:17px; accent-color:#008545; cursor:pointer;" />
+          <div style="width:46px; height:46px; border-radius:10px; flex-shrink:0; background-image:url('{{ r.img }}'); background-size:cover; background-position:center;"></div>
+          <div style="flex:1; min-width:0;">
+            <div style="font-family:'Playfair Display', serif; font-size:16px; font-weight:500;">{{ r.name }}</div>
+            <div style="font-size:12px; color:#888;">{{ r.light }}</div>
+          </div>
+          <div style="{{ r.statusStyle }}">{{ r.statusLabel }}</div>
+          <div style="text-align:right; min-width:96px; font-size:12px; line-height:1.45;">
+            <div style="color:#b3a998;">{{ r.reservedLabel }}</div>
+            <div style="{{ r.availStyle }}">{{ r.availLabel }}</div>
+          </div>
+          <div style="display:flex; flex-direction:column; align-items:center; gap:3px;">
+            <input type="number" min="0" value="{{ r.qty }}" onChange="{{ r.onQty }}" style="width:74px; padding:9px 11px; border:1px solid rgba(42,38,32,0.15); border-radius:8px; font-size:14px; font-family:'Lato',sans-serif; text-align:center;" />
+            <span style="font-size:10px; color:#aaa; letter-spacing:0.04em;">on hand</span>
+          </div>
+          <div style="display:flex; flex-direction:column; align-items:center; gap:3px;">
+            <input type="number" min="0" step="0.01" value="{{ r.cost }}" onChange="{{ r.onCost }}" placeholder="0" style="width:74px; padding:9px 11px; border:1px solid rgba(42,38,32,0.15); border-radius:8px; font-size:14px; font-family:'Lato',sans-serif; text-align:center;" />
+            <span style="font-size:10px; color:#aaa; letter-spacing:0.04em;">unit cost $</span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display:flex; gap:12px; margin-top:20px;">
+      <button onClick="{{ restockAll }}" style="background:#008545; color:#f4ede1; font-size:14px; font-weight:600; padding:12px 24px; border-radius:999px; border:none; cursor:pointer;">Restock all to 20</button>
+      <button onClick="{{ zeroAll }}" style="background:none; color:#CC1000; font-size:14px; font-weight:600; padding:12px 24px; border-radius:999px; border:1px solid rgba(204,16,0,0.3); cursor:pointer;">Set all to 0</button>
+    </div>
+
+    <sc-if value="{{ invSaved }}" hint-placeholder-val="{{ false }}">
+      <div style="position:fixed; bottom:28px; left:50%; transform:translateX(-50%); background:#222; color:#fff; font-size:14px; font-weight:500; padding:14px 26px; border-radius:999px; box-shadow:0 8px 24px rgba(0,0,0,0.2); z-index:200;">{{ invSavedMsg }}</div>
+    </sc-if>
+  </section>
+  </sc-if>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+function todayISO() {
+  const d = new Date();
+  return d.toISOString().slice(0, 10);
+}
+
+function fmt(n) {
+  const sign = n < 0 ? '-' : '';
+  return sign + '$' + Math.abs(n).toFixed(2);
+}
+
+function daysAgo(n) {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return d.toISOString().slice(0, 10);
+}
+
+function seedData() {
+  const entries = [];
+  for (let i = 13; i >= 0; i--) {
+    const date = daysAgo(i);
+    const revenue = Math.round((180 + Math.random() * 220) * 100) / 100;
+    const costs = Math.round((80 + Math.random() * 90) * 100) / 100;
+    entries.push({ date, revenue, costs });
+  }
+  return entries;
+}
+
+const PRODUCTS = [
+  { id: 'monstera', name: 'Monstera Deliciosa', light: 'Bright, indirect light', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055759_28ca2885-1cc6-48e1-829c-63fcb9183f6a.png' },
+  { id: 'fiddle', name: 'Fiddle Leaf Fig', light: 'Bright, filtered light', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055800_3075d05d-7bdf-42f5-ac92-5820dd17901c.png' },
+  { id: 'snake', name: 'Snake Plant', light: 'Low to bright light', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055802_26fd8383-1871-4320-bf8a-8cac46e3b513.png' },
+  { id: 'pothos', name: 'Golden Pothos', light: 'Low to medium light', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055803_bf68b781-2764-4665-84c2-06c7c72227f6.png' },
+  { id: 'succulent', name: 'Succulent Trio', light: 'Bright, direct light', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055805_8842c215-dce2-49c5-9360-c146fb0aa8cb.png' },
+  { id: 'rubber', name: 'Rubber Plant', light: 'Medium, indirect light', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055806_27a02e29-ac86-49cd-9cd3-4aab6f9b0379.png' },
+  { id: 'sunflower', name: 'Sunflower', light: 'Bright, direct light', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_091149_a86c2bf0-d1cf-4394-85cd-c53e6949d312.png' },
+  { id: 'orchid', name: 'Phalaenopsis Orchid', light: 'Medium, indirect light', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_091151_76ac753e-583b-405f-bebf-27375262c198.png' },
+  { id: 'kumquat', name: 'Kumquat Tree', light: 'Bright, direct light', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_091152_6ba414a9-54ab-4b08-a6e0-266d53bb8092.png' },
+  { id: 'luckybamboo', name: 'Lucky Bamboo', light: 'Low to medium light', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_091154_7219698d-5790-412b-8306-5b363cb32c29.png' },
+];
+const DEFAULT_STOCK = 20;
+const WA_NUMBER = '6588365287';
+const ADMIN_USER = 'admin';
+const ADMIN_PASS = 'canopy2026';
+const DEFAULT_COSTS = { monstera: 26, fiddle: 34, snake: 18, pothos: 15, succulent: 14, rubber: 24, sunflower: 17, orchid: 30, kumquat: 32, luckybamboo: 12 };
+
+function migrateInventoryV2() {
+  if ((loadJSON('cc_model_v', 0) || 0) >= 2) return;
+  const orders = loadJSON('cc_orders', []);
+  let inv = loadJSON('cc_inventory', null);
+  if (!inv) { inv = {}; PRODUCTS.forEach((p) => { inv[p.id] = DEFAULT_STOCK; }); }
+  const reserved = {};
+  orders.forEach((o) => {
+    if (!o.status) o.status = 'pending';
+    if (o.phone == null) o.phone = '';
+    (o.items || []).forEach((it) => {
+      if (it.collected == null) it.collected = 0;
+      const outstanding = Math.max(0, it.qty - it.collected);
+      if (o.status !== 'collected' && outstanding > 0) {
+        reserved[it.id] = (reserved[it.id] || 0) + outstanding;
+        inv[it.id] = (inv[it.id] == null ? DEFAULT_STOCK : inv[it.id]) + outstanding;
+      }
+    });
+  });
+  saveJSON('cc_inventory', inv);
+  saveJSON('cc_reserved', reserved);
+  saveJSON('cc_orders', orders);
+  if (!loadJSON('cc_costs', null)) saveJSON('cc_costs', { ...DEFAULT_COSTS });
+  saveJSON('cc_model_v', 2);
+}
+
+function waSend(msg) { window.open('https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(msg), '_blank'); }
+function loadJSON(key, fb) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fb; } catch (e) { return fb; } }
+function saveJSON(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {} }
+
+class Component extends DCLogic {
+  state = {
+    entries: (() => {
+      const stored = loadJSON('cc_pnl', null);
+      if (stored) return stored;
+      const seeded = seedData();
+      saveJSON('cc_pnl', seeded);
+      return seeded;
+    })(),
+    formDate: todayISO(),
+    formRevenue: '',
+    formCosts: '',
+    tab: 'pnl',
+    inventory: null,
+    reserved: {},
+    costs: {},
+    selected: {},
+    bulkQty: 20,
+    invSaved: false,
+    invSavedMsg: '',
+    authed: (() => { try { return sessionStorage.getItem('cc_admin_authed') === '1'; } catch (e) { return false; } })(),
+    loginUser: '', loginPass: '', loginError: '',
+  };
+
+  onLoginUser = (e) => this.setState({ loginUser: e.target.value, loginError: '' });
+  onLoginPass = (e) => this.setState({ loginPass: e.target.value, loginError: '' });
+  onLoginKey = (e) => { if (e.key === 'Enter') this.doLogin(); };
+  doLogin = () => {
+    if (this.state.loginUser.trim() === ADMIN_USER && this.state.loginPass === ADMIN_PASS) {
+      try { sessionStorage.setItem('cc_admin_authed', '1'); } catch (e) {}
+      this.setState({ authed: true, loginPass: '', loginError: '' });
+      // Alert the shop's WhatsApp that the admin panel was accessed.
+      const when = new Date().toLocaleString('en-SG', { dateStyle: 'medium', timeStyle: 'short' });
+      waSend('\uD83D\uDD10 Admin access alert \u2014 Changi Canopy\nThe admin dashboard was signed into on ' + when + '.');
+    } else {
+      this.setState({ loginError: 'Incorrect username or password.' });
+    }
+  };
+  logout = () => {
+    try { sessionStorage.removeItem('cc_admin_authed'); } catch (e) {}
+    this.setState({ authed: false, loginUser: '', loginPass: '' });
+  };
+
+  componentDidMount() {
+    migrateInventoryV2();
+    let inv = loadJSON('cc_inventory', null);
+    if (!inv) { inv = {}; PRODUCTS.forEach((p) => { inv[p.id] = DEFAULT_STOCK; }); saveJSON('cc_inventory', inv); }
+    const selected = {}; PRODUCTS.forEach((p) => { selected[p.id] = false; });
+    this.setState({ inventory: inv, selected, reserved: loadJSON('cc_reserved', {}), costs: loadJSON('cc_costs', { ...DEFAULT_COSTS }) });
+    // When the cashier closes a sale in another tab, pull in the updated
+    // P&L, inventory and reservations live.
+    this._onStorage = (e) => {
+      if (e.key === 'cc_pnl') this.setState({ entries: loadJSON('cc_pnl', []) });
+      if (e.key === 'cc_inventory') this.setState({ inventory: loadJSON('cc_inventory', {}) });
+      if (e.key === 'cc_reserved') this.setState({ reserved: loadJSON('cc_reserved', {}) });
+      if (e.key === 'cc_costs') this.setState({ costs: loadJSON('cc_costs', {}) });
+    };
+    window.addEventListener('storage', this._onStorage);
+  }
+  componentWillUnmount() { clearTimeout(this._invTimer); window.removeEventListener('storage', this._onStorage); }
+
+  invOf() { return this.state.inventory || {}; }
+  showPnl = () => this.setState({ tab: 'pnl' });
+  showInv = () => this.setState({ tab: 'inv' });
+
+  invToast = (msg) => {
+    this.setState({ invSaved: true, invSavedMsg: msg });
+    clearTimeout(this._invTimer);
+    this._invTimer = setTimeout(() => this.setState({ invSaved: false }), 2000);
+  };
+  persistInv = (inv, msg) => { saveJSON('cc_inventory', inv); this.setState({ inventory: inv }); if (msg) this.invToast(msg); };
+
+  toggleSel = (id) => this.setState((s) => ({ selected: { ...s.selected, [id]: !s.selected[id] } }));
+  toggleAll = () => {
+    const all = PRODUCTS.every((p) => this.state.selected[p.id]);
+    const selected = {}; PRODUCTS.forEach((p) => { selected[p.id] = !all; });
+    this.setState({ selected });
+  };
+  onBulkQty = (e) => this.setState({ bulkQty: e.target.value });
+  applyBulk = () => {
+    const qty = Math.max(0, parseInt(this.state.bulkQty, 10) || 0);
+    const inv = { ...this.invOf() };
+    let n = 0;
+    PRODUCTS.forEach((p) => { if (this.state.selected[p.id]) { inv[p.id] = qty; n++; } });
+    if (n === 0) { this.invToast('Select at least one plant first'); return; }
+    this.persistInv(inv, n + ' plant' + (n > 1 ? 's' : '') + ' set to ' + qty);
+  };
+  setOne = (id, val) => {
+    const qty = Math.max(0, parseInt(val, 10) || 0);
+    this.persistInv({ ...this.invOf(), [id]: qty }, null);
+  };
+  setCost = (id, val) => {
+    const cost = Math.max(0, parseFloat(val) || 0);
+    const costs = { ...(this.state.costs || {}), [id]: cost };
+    saveJSON('cc_costs', costs); this.setState({ costs });
+  };
+  restockAll = () => { const inv = {}; PRODUCTS.forEach((p) => { inv[p.id] = DEFAULT_STOCK; }); this.persistInv(inv, 'All plants restocked to 20'); };
+  zeroAll = () => { const inv = {}; PRODUCTS.forEach((p) => { inv[p.id] = 0; }); this.persistInv(inv, 'All stock set to 0'); };
+
+  onDateChange = (e) => this.setState({ formDate: e.target.value });
+  onRevenueChange = (e) => this.setState({ formRevenue: e.target.value });
+  onCostsChange = (e) => this.setState({ formCosts: e.target.value });
+
+  persistEntries = (entries) => { saveJSON('cc_pnl', entries); this.setState({ entries }); };
+
+  onAddEntry = () => {
+    const revenue = parseFloat(this.state.formRevenue) || 0;
+    const costs = parseFloat(this.state.formCosts) || 0;
+    if (revenue === 0 && costs === 0) return;
+    const entries = [...this.state.entries, { date: this.state.formDate, revenue, costs }];
+    entries.sort((a, b) => a.date.localeCompare(b.date));
+    this.persistEntries(entries);
+    this.setState({ formRevenue: '', formCosts: '' });
+  };
+
+  removeEntry = (idx) => {
+    const entries = this.state.entries.slice();
+    entries.splice(idx, 1);
+    this.persistEntries(entries);
+  };
+
+  renderVals() {
+    const _inv = this.invOf();
+    const _reserved = this.state.reserved || {};
+    const _costs = this.state.costs || {};
+    const _selCount = PRODUCTS.filter((p) => this.state.selected[p.id]).length;
+    const _allSelected = PRODUCTS.length > 0 && _selCount === PRODUCTS.length;
+    const invRows = PRODUCTS.map((p) => {
+      const qty = _inv[p.id] == null ? DEFAULT_STOCK : _inv[p.id];
+      const res = _reserved[p.id] || 0;
+      const avail = Math.max(0, qty - res);
+      const out = avail <= 0, low = avail > 0 && avail <= 5;
+      return {
+        id: p.id, name: p.name, light: p.light, img: p.img, qty,
+        cost: _costs[p.id] == null ? '' : _costs[p.id],
+        selected: !!this.state.selected[p.id],
+        toggle: () => this.toggleSel(p.id),
+        onQty: (e) => this.setOne(p.id, e.target.value),
+        onCost: (e) => this.setCost(p.id, e.target.value),
+        reservedLabel: res > 0 ? (res + ' reserved') : 'none reserved',
+        availLabel: avail + ' available',
+        availStyle: 'color:' + (out ? '#CC1000' : (low ? '#B37A00' : '#008545')) + '; font-weight:600;',
+        statusLabel: out ? 'Out of stock' : (low ? 'Low' : 'In stock'),
+        statusStyle: 'font-size:11px; font-weight:700; padding:5px 12px; border-radius:999px; ' + (out ? 'background:rgba(204,16,0,0.1); color:#CC1000;' : (low ? 'background:rgba(232,164,0,0.14); color:#B37A00;' : 'background:rgba(0,133,69,0.1); color:#008545;')),
+      };
+    });
+    const _applyDisabled = _selCount === 0;
+    const entries = this.state.entries;
+    const today = todayISO();
+
+    const startOfWeek = (() => {
+      const d = new Date();
+      const day = d.getDay();
+      const diff = (day === 0 ? 6 : day - 1);
+      d.setDate(d.getDate() - diff);
+      return d.toISOString().slice(0, 10);
+    })();
+
+    const startOfMonth = today.slice(0, 7) + '-01';
+
+    const sum = (list, key) => list.reduce((acc, e) => acc + e[key], 0);
+
+    const dayEntries = entries.filter((e) => e.date === today);
+    const weekEntries = entries.filter((e) => e.date >= startOfWeek && e.date <= today);
+    const monthEntries = entries.filter((e) => e.date >= startOfMonth && e.date <= today);
+
+    const dailyRevenue = sum(dayEntries, 'revenue');
+    const dailyCosts = sum(dayEntries, 'costs');
+    const weeklyRevenue = sum(weekEntries, 'revenue');
+    const weeklyCosts = sum(weekEntries, 'costs');
+    const monthlyRevenue = sum(monthEntries, 'revenue');
+    const monthlyCosts = sum(monthEntries, 'costs');
+
+    const last14 = [];
+    for (let i = 13; i >= 0; i--) {
+      const date = daysAgo(i);
+      const dayList = entries.filter((e) => e.date === date);
+      const profit = sum(dayList, 'revenue') - sum(dayList, 'costs');
+      last14.push({ date, profit });
+    }
+    const maxAbs = Math.max(1, ...last14.map((d) => Math.abs(d.profit)));
+
+    const chartBars = last14.map((d) => {
+      const heightPct = Math.max(3, Math.round((Math.abs(d.profit) / maxAbs) * 100));
+      const color = d.profit >= 0 ? '#008545' : '#CC1000';
+      const dt = new Date(d.date + 'T00:00:00');
+      return {
+        label: (dt.getMonth() + 1) + '/' + dt.getDate(),
+        tooltip: d.date + ': ' + fmt(d.profit),
+        barStyle: 'width:100%; height:' + heightPct + '%; background:' + color + '; border-radius:4px 4px 0 0;',
+      };
+    });
+
+    const recentEntries = entries.slice().reverse().slice(0, 8).map((e) => {
+      const idx = entries.indexOf(e);
+      return {
+        date: e.date + (e.orderId ? '  ·  ' + e.orderId : ''),
+        revenue: fmt(e.revenue),
+        costs: '-' + fmt(e.costs),
+        profit: fmt(e.revenue - e.costs),
+        onRemove: () => this.removeEntry(idx),
+      };
+    });
+
+    return {
+      formDate: this.state.formDate,
+      formRevenue: this.state.formRevenue,
+      formCosts: this.state.formCosts,
+      onDateChange: this.onDateChange,
+      onRevenueChange: this.onRevenueChange,
+      onCostsChange: this.onCostsChange,
+      onAddEntry: this.onAddEntry,
+      hasEntries: entries.length > 0,
+      recentEntries,
+      dailyProfit: fmt(dailyRevenue - dailyCosts),
+      dailyRevenue: fmt(dailyRevenue),
+      dailyCosts: fmt(dailyCosts),
+      weeklyProfit: fmt(weeklyRevenue - weeklyCosts),
+      weeklyRevenue: fmt(weeklyRevenue),
+      weeklyCosts: fmt(weeklyCosts),
+      monthlyProfit: fmt(monthlyRevenue - monthlyCosts),
+      monthlyRevenue: fmt(monthlyRevenue),
+      monthlyCosts: fmt(monthlyCosts),
+      chartBars,
+      onPnl: this.state.tab === 'pnl', onInv: this.state.tab === 'inv',
+      tabPnlStyle: 'padding:8px 20px; border-radius:999px; font-size:13px; font-weight:600; border:none; cursor:pointer; background:' + (this.state.tab === 'pnl' ? '#f4ede1' : 'transparent') + '; color:' + (this.state.tab === 'pnl' ? '#00532b' : '#9fd6b8') + ';',
+      tabInvStyle: 'padding:8px 20px; border-radius:999px; font-size:13px; font-weight:600; border:none; cursor:pointer; background:' + (this.state.tab === 'inv' ? '#f4ede1' : 'transparent') + '; color:' + (this.state.tab === 'inv' ? '#00532b' : '#9fd6b8') + ';',
+      showPnl: this.showPnl, showInv: this.showInv,
+      invRows, allSelected: _allSelected, toggleAll: this.toggleAll, selectedCount: _selCount,
+      bulkQty: this.state.bulkQty, onBulkQty: this.onBulkQty, applyBulk: this.applyBulk,
+      applyDisabled: _applyDisabled, applyBtnStyle: 'background:' + (_applyDisabled ? '#c9c0af' : '#f4ede1') + '; color:#00532b; font-size:13px; font-weight:700; padding:9px 18px; border-radius:999px; border:none; cursor:' + (_applyDisabled ? 'not-allowed' : 'pointer') + ';',
+      restockAll: this.restockAll, zeroAll: this.zeroAll,
+      invSaved: this.state.invSaved, invSavedMsg: this.state.invSavedMsg,
+      authed: this.state.authed, notAuthed: !this.state.authed,
+      loginUser: this.state.loginUser, loginPass: this.state.loginPass, loginError: this.state.loginError,
+      onLoginUser: this.onLoginUser, onLoginPass: this.onLoginPass, onLoginKey: this.onLoginKey,
+      doLogin: this.doLogin, logout: this.logout,
+    };
+  }
+}
+</script>
+</body>
+</html>

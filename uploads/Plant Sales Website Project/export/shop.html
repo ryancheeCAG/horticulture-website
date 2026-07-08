@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Lato', sans-serif; }
+    a { color: #008545; }
+    a:hover { color: #CC1000; }
+    @keyframes revealUp {
+      0% { opacity: 0; transform: translateY(30px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes revealPop {
+      0% { opacity: 0; transform: translateY(40px) scale(0.94); filter: blur(6px); }
+      60% { opacity: 1; }
+      100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+    }
+    .reveal { opacity: 0; }
+    .reveal-in.reveal-up { animation: revealUp 0.8s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .reveal-in.reveal-pop { animation: revealPop 0.7s cubic-bezier(0.16,1,0.3,1) forwards; }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal, .reveal-in { animation: none; opacity: 1; }
+    }
+  </style>
+</helmet>
+
+<div style="min-height:100vh; background:#FFFFFF; color:#222222; letter-spacing:-0.01em;">
+
+  <nav style="position:sticky; top:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:18px 32px; background:rgba(246,241,231,0.85); backdrop-filter:blur(10px); border-bottom:1px solid rgba(42,38,32,0.08);">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <svg width="24" height="24" viewBox="0 0 256 256" fill="#008545"><path d="M 256 256 L 128 256 L 0 128 L 128 128 Z M 256 128 L 128 128 L 0 0 L 128 0 Z"></path></svg>
+      <span style="font-family:'Playfair Display', serif; font-style:italic; font-size:22px;">Changi Canopy</span>
+    </div>
+    <div style="display:flex; gap:4px; align-items:center; background:rgba(42,38,32,0.05); border-radius:999px; padding:6px;">
+      <a href="index.html" style="padding:8px 18px; border-radius:999px; font-size:14px; font-weight:500; color:#555555; text-decoration:none;">Home</a>
+      <a href="shop.html" style="padding:8px 18px; border-radius:999px; font-size:14px; font-weight:500; color:#222222; background:#fff; text-decoration:none;">Shop</a>
+      <a href="care-assistant.html" style="padding:8px 18px; border-radius:999px; font-size:14px; font-weight:500; color:#555555; text-decoration:none;">Plant Care</a>
+    </div>
+    <div style="display:flex; align-items:center; gap:16px;">
+      <span style="font-size:13px; color:#555555;">{{ cartCount }} in cart</span>
+      <a href="index.html" style="background:#008545; color:#f4ede1; font-size:14px; font-weight:600; padding:11px 22px; border-radius:999px; text-decoration:none;">Home</a>
+    </div>
+  </nav>
+
+  <section style="max-width:1200px; margin:0 auto; padding:80px 32px 40px; text-align:center;">
+    <div ref="{{ registerReveal }}" class="reveal reveal-up" style="font-size:12px; letter-spacing:0.16em; text-transform:uppercase; color:#CC1000; font-weight:600; margin-bottom:16px;">The full collection</div>
+    <h1 ref="{{ registerReveal }}" class="reveal reveal-up" style="animation-delay:0.1s; font-family:'Playfair Display', serif; font-weight:500; font-size:clamp(34px,4.5vw,54px); margin:0 0 16px;">Shop plants by light &amp; life</h1>
+    <p ref="{{ registerReveal }}" class="reveal reveal-up" style="animation-delay:0.2s; font-size:16px; color:#555555; max-width:520px; margin:0 auto;">Filter by how much sun your space gets — every plant is matched to real conditions, not guesswork.</p>
+    <p ref="{{ registerReveal }}" class="reveal reveal-up" style="animation-delay:0.25s; font-size:13px; color:#CC1000; font-weight:600; max-width:520px; margin:12px auto 0;">New in: sunflowers, orchids &amp; Chinese New Year plants</p>
+  </section>
+
+  <section ref="{{ registerReveal }}" class="reveal reveal-up" style="animation-delay:0.3s; max-width:1200px; margin:0 auto; padding:0 32px 20px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
+    <sc-for list="{{ filters }}" as="f" hint-placeholder-count="4">
+      <button onClick="{{ f.onClick }}" style="{{ f.style }}">{{ f.label }}</button>
+    </sc-for>
+  </section>
+
+  <section style="max-width:1200px; margin:0 auto; padding:20px 32px 100px;">
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:28px;">
+      <sc-for list="{{ visibleProducts }}" as="p" hint-placeholder-count="6">
+        <div ref="{{ registerReveal }}" class="reveal reveal-pop" style="animation-delay:{{ p.revealDelay }}; background:#fff; border-radius:18px; overflow:hidden; box-shadow:0 1px 3px rgba(42,38,32,0.06); display:flex; flex-direction:column;">
+          <div style="width:100%; aspect-ratio:1/1; background-image:url('{{ p.img }}'); background-size:cover; background-position:center;"></div>
+          <div style="padding:20px 22px 24px; display:flex; flex-direction:column; flex:1;">
+            <div style="font-family:'Playfair Display', serif; font-size:19px; font-weight:500; margin-bottom:4px;">{{ p.name }}</div>
+            <div style="font-size:13px; color:#888888; margin-bottom:6px;">{{ p.light }}</div>
+            <div style="font-size:13px; color:#555555; line-height:1.5; margin-bottom:16px; flex:1;">{{ p.blurb }}</div>
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+              <div style="font-size:16px; font-weight:600; color:#CC1000;">{{ p.price }}</div>
+              <button onClick="{{ p.addToCart }}" style="background:#008545; color:#f4ede1; font-size:13px; font-weight:600; padding:10px 20px; border-radius:999px; border:none; cursor:pointer;">Add to cart</button>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <footer style="background:#00532b; color:#eaf5ee; padding:56px 32px 32px;">
+    <div style="max-width:1200px; margin:0 auto; display:flex; flex-direction:column; align-items:center; gap:16px; text-align:center;">
+      <div style="display:flex; gap:24px; font-size:13px; flex-wrap:wrap; justify-content:center;">
+        <a href="terms.html" style="color:#eaf5ee; text-decoration:none;">Terms &amp; Conditions</a>
+        <a href="privacy.html" style="color:#eaf5ee; text-decoration:none;">Privacy</a>
+        <a href="disclaimer.html" style="color:#eaf5ee; text-decoration:none;">Disclaimer</a>
+      </div>
+      <div style="font-size:12px; color:#9fd6b8;">© 2026 Changi Canopy. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <sc-if value="{{ toastVisible }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed; bottom:28px; left:50%; transform:translateX(-50%); background:#222222; color:#fff; font-size:14px; font-weight:500; padding:14px 26px; border-radius:999px; box-shadow:0 8px 24px rgba(0,0,0,0.2); z-index:200;">{{ toastMessage }}</div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const PRODUCTS = [
+  { id: 'monstera', name: 'Monstera Deliciosa', light: 'Bright, indirect light', category: 'bright', price: '$48', blurb: 'Bold split leaves that fill a corner fast. A statement plant for beginners and collectors alike.', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055759_28ca2885-1cc6-48e1-829c-63fcb9183f6a.png' },
+  { id: 'fiddle', name: 'Fiddle Leaf Fig', light: 'Bright, filtered light', category: 'bright', price: '$62', blurb: 'Sculptural violin-shaped leaves. The classic living-room centerpiece.', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055800_3075d05d-7bdf-42f5-ac92-5820dd17901c.png' },
+  { id: 'snake', name: 'Snake Plant', light: 'Low to bright light', category: 'low', price: '$34', blurb: 'Nearly indestructible. Thrives on neglect and purifies the air while it\u2019s at it.', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055802_26fd8383-1871-4320-bf8a-8cac46e3b513.png' },
+  { id: 'pothos', name: 'Golden Pothos', light: 'Low to medium light', category: 'low', price: '$28', blurb: 'Trailing vines that forgive missed waterings. Great for shelves and hanging planters.', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055803_bf68b781-2764-4665-84c2-06c7c72227f6.png' },
+  { id: 'succulent', name: 'Succulent Trio', light: 'Bright, direct light', category: 'bright', price: '$26', blurb: 'Three low-water succulents potted together for a sunny windowsill.', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055805_8842c215-dce2-49c5-9360-c146fb0aa8cb.png' },
+  { id: 'rubber', name: 'Rubber Plant', light: 'Medium, indirect light', category: 'medium', price: '$44', blurb: 'Glossy, deep-green leaves and an easygoing nature. Handsome in any room.', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055806_27a02e29-ac86-49cd-9cd3-4aab6f9b0379.png' },
+  { id: 'sunflower', name: 'Sunflower', light: 'Bright, direct light', category: 'bright', price: '$32', blurb: 'A cheerful bloom that tracks the sun. Best on a sunny windowsill or patio.', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_091149_a86c2bf0-d1cf-4394-85cd-c53e6949d312.png' },
+  { id: 'orchid', name: 'Phalaenopsis Orchid', light: 'Medium, indirect light', category: 'medium', price: '$56', blurb: 'Elegant, long-lasting blooms. A refined gift or a quiet luxury for yourself.', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_091151_76ac753e-583b-405f-bebf-27375262c198.png' },
+  { id: 'kumquat', name: 'Kumquat Tree', light: 'Bright, direct light', category: 'bright', price: '$58', blurb: 'A traditional Chinese New Year lucky plant, laden with small golden fruit for prosperity.', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_091152_6ba414a9-54ab-4b08-a6e0-266d53bb8092.png' },
+  { id: 'luckybamboo', name: 'Lucky Bamboo', light: 'Low to medium light', category: 'low', price: '$24', blurb: 'A classic Chinese New Year gift said to bring good fortune. Thrives in water, needs little care.', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_091154_7219698d-5790-412b-8306-5b363cb32c29.png' },
+];
+
+const FILTERS = [
+  { id: 'all', label: 'All plants' },
+  { id: 'low', label: 'Low light' },
+  { id: 'medium', label: 'Medium light' },
+  { id: 'bright', label: 'Bright light' },
+];
+
+class Component extends DCLogic {
+  state = {
+    activeFilter: 'all',
+    cartCount: 0,
+    toastVisible: false,
+    toastMessage: '',
+  };
+
+  // Scroll-triggered entrance, same pattern as Home: register elements,
+  // add reveal-in the first time they cross 15% visible, then stop watching.
+  _revealEls = [];
+  _observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('reveal-in');
+        this._observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  registerReveal = (el) => {
+    if (el && !this._revealEls.includes(el)) {
+      this._revealEls.push(el);
+      this._observer.observe(el);
+    }
+  };
+
+  setFilter = (id) => this.setState({ activeFilter: id });
+
+  addToCart = (name) => {
+    this.setState((s) => ({ cartCount: s.cartCount + 1, toastVisible: true, toastMessage: name + ' added to cart' }));
+    clearTimeout(this._toastTimer);
+    this._toastTimer = setTimeout(() => this.setState({ toastVisible: false }), 2200);
+  };
+
+  componentWillUnmount() {
+    this._observer.disconnect();
+    clearTimeout(this._toastTimer);
+  }
+
+  renderVals() {
+    const visibleProducts = PRODUCTS
+      .filter((p) => this.state.activeFilter === 'all' || p.category === this.state.activeFilter)
+      .map((p, i) => ({ ...p, addToCart: () => this.addToCart(p.name), revealDelay: (i * 0.06) + 's' }));
+
+    const filters = FILTERS.map((f) => {
+      const active = this.state.activeFilter === f.id;
+      return {
+        label: f.label,
+        onClick: () => this.setFilter(f.id),
+        style: 'padding:10px 20px; border-radius:999px; font-size:13px; font-weight:600; border:1px solid ' + (active ? '#008545' : 'rgba(42,38,32,0.15)') + '; background:' + (active ? '#008545' : 'transparent') + '; color:' + (active ? '#f4ede1' : '#555555') + '; cursor:pointer;',
+      };
+    });
+
+    return {
+      cartCount: this.state.cartCount,
+      filters,
+      visibleProducts,
+      registerReveal: this.registerReveal,
+      toastVisible: this.state.toastVisible,
+      toastMessage: this.state.toastMessage,
+    };
+  }
+}
+</script>
+</body>
+</html>

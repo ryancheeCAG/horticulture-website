@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Lato', sans-serif; }
+    a { color: #008545; }
+    a:hover { color: #CC1000; }
+  </style>
+</helmet>
+
+<div style="min-height:100vh; background:#FFFFFF; color:#222222; letter-spacing:-0.01em;">
+
+  <nav style="position:sticky; top:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:18px 32px; background:rgba(246,241,231,0.85); backdrop-filter:blur(10px); border-bottom:1px solid rgba(42,38,32,0.08);">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <svg width="24" height="24" viewBox="0 0 256 256" fill="#008545"><path d="M 256 256 L 128 256 L 0 128 L 128 128 Z M 256 128 L 128 128 L 0 0 L 128 0 Z"></path></svg>
+      <span style="font-family:'Playfair Display', serif; font-style:italic; font-size:22px;">Changi Canopy</span>
+    </div>
+    <div style="display:flex; gap:4px; align-items:center; background:rgba(42,38,32,0.05); border-radius:999px; padding:6px;">
+      <a href="index.html" style="padding:8px 18px; border-radius:999px; font-size:14px; font-weight:500; color:#555555; text-decoration:none;">Home</a>
+      <a href="shop.html" style="padding:8px 18px; border-radius:999px; font-size:14px; font-weight:500; color:#555555; text-decoration:none;">Shop</a>
+      <a href="care-assistant.html" style="padding:8px 18px; border-radius:999px; font-size:14px; font-weight:500; color:#555555; text-decoration:none;">Plant Care</a>
+    </div>
+    <a href="index.html" style="background:#008545; color:#f4ede1; font-size:14px; font-weight:600; padding:11px 22px; border-radius:999px; text-decoration:none;">Home</a>
+  </nav>
+
+  <section style="max-width:760px; margin:0 auto; padding:80px 32px 40px;">
+    <div style="font-size:12px; letter-spacing:0.16em; text-transform:uppercase; color:#CC1000; font-weight:600; margin-bottom:16px;">Legal</div>
+    <h1 style="font-family:'Playfair Display', serif; font-weight:500; font-size:clamp(30px,4vw,44px); margin:0 0 12px;">Privacy Notice</h1>
+    <p style="font-size:13px; color:#888888; margin:0 0 40px;">Last updated: July 2026</p>
+
+    <div style="display:flex; flex-direction:column; gap:28px; font-size:15px; color:#333333; line-height:1.7;">
+      <div>
+        <h2 style="font-family:'Playfair Display', serif; font-weight:500; font-size:18px; color:#222222; margin:0 0 8px;">1. What we collect</h2>
+        <p style="margin:0;">Name, email, delivery address, and order details when you shop with us. Basic usage data (pages viewed, general location) when you browse the site.</p>
+      </div>
+      <div>
+        <h2 style="font-family:'Playfair Display', serif; font-weight:500; font-size:18px; color:#222222; margin:0 0 8px;">2. How we use it</h2>
+        <p style="margin:0;">To fulfil orders, send delivery updates, respond to enquiries, and improve the site. We don't sell your data.</p>
+      </div>
+      <div>
+        <h2 style="font-family:'Playfair Display', serif; font-weight:500; font-size:18px; color:#222222; margin:0 0 8px;">3. Cookies</h2>
+        <p style="margin:0;">We use basic cookies to keep your cart working and understand how the site is used. You can disable cookies in your browser, though some features may not work as well.</p>
+      </div>
+      <div>
+        <h2 style="font-family:'Playfair Display', serif; font-weight:500; font-size:18px; color:#222222; margin:0 0 8px;">4. Sharing</h2>
+        <p style="margin:0;">We share order details only with the services needed to deliver your plants (payment processing, shipping). No third-party marketing without your consent.</p>
+      </div>
+      <div>
+        <h2 style="font-family:'Playfair Display', serif; font-weight:500; font-size:18px; color:#222222; margin:0 0 8px;">5. Your rights</h2>
+        <p style="margin:0;">You can ask to see, correct, or delete your personal data at any time by contacting us.</p>
+      </div>
+      <div>
+        <h2 style="font-family:'Playfair Display', serif; font-weight:500; font-size:18px; color:#222222; margin:0 0 8px;">6. Contact</h2>
+        <p style="margin:0;">Privacy questions? Email hello@changicanopy.com.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer style="background:#00532b; color:#eaf5ee; padding:56px 32px 32px; margin-top:60px;">
+    <div style="max-width:1200px; margin:0 auto; display:flex; flex-direction:column; align-items:center; gap:16px; text-align:center;">
+      <div style="display:flex; gap:24px; font-size:13px; flex-wrap:wrap; justify-content:center;">
+        <a href="terms.html" style="color:#eaf5ee; text-decoration:none;">Terms &amp; Conditions</a>
+        <a href="privacy.html" style="color:#eaf5ee; text-decoration:none;">Privacy</a>
+        <a href="disclaimer.html" style="color:#eaf5ee; text-decoration:none;">Disclaimer</a>
+      </div>
+      <div style="font-size:12px; color:#9fd6b8;">© 2026 Changi Canopy. All rights reserved.</div>
+    </div>
+  </footer>
+
+</div>
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Lato', sans-serif; }
+    a { color: #008545; }
+    a:hover { color: #CC1000; }
+    input[type="number"], input[type="date"] { font-family: 'Lato', sans-serif; }
+    input[type="number"]:focus, input[type="date"]:focus { outline: 2px solid #008545; outline-offset: 1px; }
+  </style>
+</helmet>
+
+<div style="min-height:100vh; background:#FFFFFF; color:#222222; letter-spacing:-0.01em;">
+
+  <nav style="display:flex; align-items:center; justify-content:space-between; padding:18px 32px; background:#00532b; border-bottom:1px solid rgba(255,255,255,0.08);">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <svg width="22" height="22" viewBox="0 0 256 256" fill="#f4ede1"><path d="M 256 256 L 128 256 L 0 128 L 128 128 Z M 256 128 L 128 128 L 0 0 L 128 0 Z"></path></svg>
+      <span style="font-family:'Playfair Display', serif; font-style:italic; font-size:20px; color:#f4ede1;">Changi Canopy</span>
+      <span style="font-size:12px; color:#7ad9a3; background:rgba(255,255,255,0.08); padding:4px 10px; border-radius:999px; margin-left:8px;">Admin · P&amp;L</span>
+    </div>
+    <a href="index.html" style="color:#eaf5ee; font-size:13px; text-decoration:none;">← Back to site</a>
+  </nav>
+
+  <section style="max-width:1100px; margin:0 auto; padding:56px 32px 100px;">
+    <h1 style="font-family:'Playfair Display', serif; font-weight:500; font-size:clamp(28px,3.5vw,38px); margin:0 0 8px;">Profit &amp; Loss</h1>
+    <p style="font-size:14px; color:#555555; margin:0 0 40px;">Log daily revenue and costs. Weekly and monthly totals roll up automatically.</p>
+
+    <div style="display:grid; grid-template-columns:1.1fr 1.4fr; gap:32px; align-items:start;">
+
+      <div style="background:#fff; border-radius:16px; padding:28px; box-shadow:0 1px 3px rgba(42,38,32,0.06);">
+        <h2 style="font-family:'Playfair Display', serif; font-weight:500; font-size:19px; margin:0 0 20px;">Log an entry</h2>
+
+        <label style="display:block; font-size:12px; font-weight:600; color:#555555; margin-bottom:6px;">Date</label>
+        <input type="date" value="{{ formDate }}" onChange="{{ onDateChange }}" style="width:100%; padding:10px 12px; border:1px solid rgba(42,38,32,0.15); border-radius:8px; font-size:14px; margin-bottom:18px;" />
+
+        <label style="display:block; font-size:12px; font-weight:600; color:#555555; margin-bottom:6px;">Revenue ($)</label>
+        <input type="number" min="0" step="0.01" value="{{ formRevenue }}" onChange="{{ onRevenueChange }}" placeholder="0.00" style="width:100%; padding:10px 12px; border:1px solid rgba(42,38,32,0.15); border-radius:8px; font-size:14px; margin-bottom:18px;" />
+
+        <label style="display:block; font-size:12px; font-weight:600; color:#555555; margin-bottom:6px;">Costs ($)</label>
+        <input type="number" min="0" step="0.01" value="{{ formCosts }}" onChange="{{ onCostsChange }}" placeholder="0.00" style="width:100%; padding:10px 12px; border:1px solid rgba(42,38,32,0.15); border-radius:8px; font-size:14px; margin-bottom:24px;" />
+
+        <button onClick="{{ onAddEntry }}" style="width:100%; background:#008545; color:#f4ede1; font-size:14px; font-weight:600; padding:13px; border-radius:999px; border:none; cursor:pointer;">Add entry</button>
+
+        <sc-if value="{{ hasEntries }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:28px; border-top:1px solid rgba(42,38,32,0.08); padding-top:20px;">
+            <div style="font-size:12px; font-weight:600; color:#555555; margin-bottom:12px;">Recent entries</div>
+            <div style="display:flex; flex-direction:column; gap:8px; max-height:220px; overflow-y:auto;">
+              <sc-for list="{{ recentEntries }}" as="e" hint-placeholder-count="3">
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; padding:8px 0; border-bottom:1px solid rgba(42,38,32,0.05);">
+                  <span style="color:#555555;">{{ e.date }}</span>
+                  <span style="color:#008545; font-weight:600;">{{ e.revenue }}</span>
+                  <span style="color:#CC1000;">{{ e.costs }}</span>
+                  <span style="font-weight:600;">{{ e.profit }}</span>
+                  <button onClick="{{ e.onRemove }}" style="background:none; border:none; color:#b3a998; cursor:pointer; font-size:16px; line-height:1;">×</button>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:20px;">
+        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px;">
+          <div style="background:#00532b; color:#f4ede1; border-radius:16px; padding:22px;">
+            <div style="font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:#7ad9a3; margin-bottom:10px;">Today</div>
+            <div style="font-family:'Playfair Display', serif; font-size:26px; font-weight:500;">{{ dailyProfit }}</div>
+            <div style="font-size:12px; color:#7ad9a3; margin-top:6px;">Rev {{ dailyRevenue }} · Cost {{ dailyCosts }}</div>
+          </div>
+          <div style="background:#fff; border-radius:16px; padding:22px; box-shadow:0 1px 3px rgba(42,38,32,0.06);">
+            <div style="font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:#888888; margin-bottom:10px;">This week</div>
+            <div style="font-family:'Playfair Display', serif; font-size:26px; font-weight:500; color:#008545;">{{ weeklyProfit }}</div>
+            <div style="font-size:12px; color:#888888; margin-top:6px;">Rev {{ weeklyRevenue }} · Cost {{ weeklyCosts }}</div>
+          </div>
+          <div style="background:#fff; border-radius:16px; padding:22px; box-shadow:0 1px 3px rgba(42,38,32,0.06);">
+            <div style="font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:#888888; margin-bottom:10px;">This month</div>
+            <div style="font-family:'Playfair Display', serif; font-size:26px; font-weight:500; color:#008545;">{{ monthlyProfit }}</div>
+            <div style="font-size:12px; color:#888888; margin-top:6px;">Rev {{ monthlyRevenue }} · Cost {{ monthlyCosts }}</div>
+          </div>
+        </div>
+
+        <div style="background:#fff; border-radius:16px; padding:28px; box-shadow:0 1px 3px rgba(42,38,32,0.06); flex:1;">
+          <div style="font-size:12px; font-weight:600; color:#555555; margin-bottom:20px;">Daily profit, last 14 days</div>
+          <div style="display:flex; align-items:flex-end; gap:6px; height:180px;">
+            <sc-for list="{{ chartBars }}" as="b" hint-placeholder-count="14">
+              <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%;" title="{{ b.tooltip }}">
+                <div style="{{ b.barStyle }}"></div>
+                <div style="font-size:9px; color:#b3a998; margin-top:6px; writing-mode:vertical-rl; text-orientation:mixed;">{{ b.label }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+function todayISO() {
+  const d = new Date();
+  return d.toISOString().slice(0, 10);
+}
+
+function fmt(n) {
+  const sign = n < 0 ? '-' : '';
+  return sign + '$' + Math.abs(n).toFixed(2);
+}
+
+function daysAgo(n) {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return d.toISOString().slice(0, 10);
+}
+
+function seedData() {
+  const entries = [];
+  for (let i = 13; i >= 0; i--) {
+    const date = daysAgo(i);
+    const revenue = Math.round((180 + Math.random() * 220) * 100) / 100;
+    const costs = Math.round((80 + Math.random() * 90) * 100) / 100;
+    entries.push({ date, revenue, costs });
+  }
+  return entries;
+}
+
+class Component extends DCLogic {
+  state = {
+    entries: seedData(),
+    formDate: todayISO(),
+    formRevenue: '',
+    formCosts: '',
+  };
+
+  onDateChange = (e) => this.setState({ formDate: e.target.value });
+  onRevenueChange = (e) => this.setState({ formRevenue: e.target.value });
+  onCostsChange = (e) => this.setState({ formCosts: e.target.value });
+
+  onAddEntry = () => {
+    const revenue = parseFloat(this.state.formRevenue) || 0;
+    const costs = parseFloat(this.state.formCosts) || 0;
+    if (revenue === 0 && costs === 0) return;
+    const entries = [...this.state.entries, { date: this.state.formDate, revenue, costs }];
+    entries.sort((a, b) => a.date.localeCompare(b.date));
+    this.setState({ entries, formRevenue: '', formCosts: '' });
+  };
+
+  removeEntry = (idx) => {
+    const entries = this.state.entries.slice();
+    entries.splice(idx, 1);
+    this.setState({ entries });
+  };
+
+  renderVals() {
+    const entries = this.state.entries;
+    const today = todayISO();
+
+    const startOfWeek = (() => {
+      const d = new Date();
+      const day = d.getDay();
+      const diff = (day === 0 ? 6 : day - 1);
+      d.setDate(d.getDate() - diff);
+      return d.toISOString().slice(0, 10);
+    })();
+
+    const startOfMonth = today.slice(0, 7) + '-01';
+
+    const sum = (list, key) => list.reduce((acc, e) => acc + e[key], 0);
+
+    const dayEntries = entries.filter((e) => e.date === today);
+    const weekEntries = entries.filter((e) => e.date >= startOfWeek && e.date <= today);
+    const monthEntries = entries.filter((e) => e.date >= startOfMonth && e.date <= today);
+
+    const dailyRevenue = sum(dayEntries, 'revenue');
+    const dailyCosts = sum(dayEntries, 'costs');
+    const weeklyRevenue = sum(weekEntries, 'revenue');
+    const weeklyCosts = sum(weekEntries, 'costs');
+    const monthlyRevenue = sum(monthEntries, 'revenue');
+    const monthlyCosts = sum(monthEntries, 'costs');
+
+    const last14 = [];
+    for (let i = 13; i >= 0; i--) {
+      const date = daysAgo(i);
+      const dayList = entries.filter((e) => e.date === date);
+      const profit = sum(dayList, 'revenue') - sum(dayList, 'costs');
+      last14.push({ date, profit });
+    }
+    const maxAbs = Math.max(1, ...last14.map((d) => Math.abs(d.profit)));
+
+    const chartBars = last14.map((d) => {
+      const heightPct = Math.max(3, Math.round((Math.abs(d.profit) / maxAbs) * 100));
+      const color = d.profit >= 0 ? '#008545' : '#CC1000';
+      const dt = new Date(d.date + 'T00:00:00');
+      return {
+        label: (dt.getMonth() + 1) + '/' + dt.getDate(),
+        tooltip: d.date + ': ' + fmt(d.profit),
+        barStyle: 'width:100%; height:' + heightPct + '%; background:' + color + '; border-radius:4px 4px 0 0;',
+      };
+    });
+
+    const recentEntries = entries.slice().reverse().slice(0, 8).map((e) => {
+      const idx = entries.indexOf(e);
+      return {
+        date: e.date,
+        revenue: fmt(e.revenue),
+        costs: '-' + fmt(e.costs),
+        profit: fmt(e.revenue - e.costs),
+        onRemove: () => this.removeEntry(idx),
+      };
+    });
+
+    return {
+      formDate: this.state.formDate,
+      formRevenue: this.state.formRevenue,
+      formCosts: this.state.formCosts,
+      onDateChange: this.onDateChange,
+      onRevenueChange: this.onRevenueChange,
+      onCostsChange: this.onCostsChange,
+      onAddEntry: this.onAddEntry,
+      hasEntries: entries.length > 0,
+      recentEntries,
+      dailyProfit: fmt(dailyRevenue - dailyCosts),
+      dailyRevenue: fmt(dailyRevenue),
+      dailyCosts: fmt(dailyCosts),
+      weeklyProfit: fmt(weeklyRevenue - weeklyCosts),
+      weeklyRevenue: fmt(weeklyRevenue),
+      weeklyCosts: fmt(weeklyCosts),
+      monthlyProfit: fmt(monthlyRevenue - monthlyCosts),
+      monthlyRevenue: fmt(monthlyRevenue),
+      monthlyCosts: fmt(monthlyCosts),
+      chartBars,
+    };
+  }
+}
+</script>
+</body>
+</html>

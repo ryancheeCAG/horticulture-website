@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Lato', sans-serif; }
+    ::selection { background: #008545; color: #f4ede1; }
+    a { color: #008545; }
+    a:hover { color: #CC1000; }
+    @keyframes heroReveal {
+      0% { opacity: 0; transform: translateY(28px); filter: blur(12px); }
+      100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+    }
+    @keyframes heroFadeUp {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes heroZoom {
+      0% { transform: scale(1.12); }
+      100% { transform: scale(1); }
+    }
+    @keyframes sprout {
+      0% { height: 0%; }
+      100% { height: 100%; }
+    }
+    @keyframes leafPop {
+      0%, 40% { transform: scale(0) rotate(-20deg); opacity: 0; }
+      70% { transform: scale(1.15) rotate(4deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    @keyframes fadeOutSplash {
+      0% { opacity: 1; visibility: visible; }
+      99% { opacity: 0; visibility: visible; }
+      100% { opacity: 0; visibility: hidden; }
+    }
+    .hero-anim { opacity: 0; animation-fill-mode: forwards; animation-timing-function: cubic-bezier(0.16,1,0.3,1); }
+    .hero-reveal { animation-name: heroReveal; animation-duration: 1.1s; }
+    .hero-fade { animation-name: heroFadeUp; animation-duration: 1s; }
+    .hero-zoom { animation: heroZoom 2.2s cubic-bezier(0.16,1,0.3,1) forwards; }
+    @media (prefers-reduced-motion: reduce) {
+      .hero-anim, .hero-zoom { animation: none; opacity: 1; }
+    }
+    @keyframes revealUp {
+      0% { opacity: 0; transform: translateY(30px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes revealPop {
+      0% { opacity: 0; transform: translateY(40px) scale(0.94); filter: blur(6px); }
+      60% { opacity: 1; }
+      100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+    }
+    @keyframes revealLeft {
+      0% { opacity: 0; transform: translateX(-40px); }
+      100% { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes revealRight {
+      0% { opacity: 0; transform: translateX(40px); }
+      100% { opacity: 1; transform: translateX(0); }
+    }
+    .reveal { opacity: 0; }
+    .reveal-in.reveal-up { animation: revealUp 0.8s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .reveal-in.reveal-pop { animation: revealPop 0.7s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .reveal-in.reveal-left { animation: revealLeft 0.8s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .reveal-in.reveal-right { animation: revealRight 0.8s cubic-bezier(0.16,1,0.3,1) forwards; }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal, .reveal-in { animation: none; opacity: 1; }
+    }
+  </style>
+</helmet>
+
+<div style="min-height:100vh; background:#FFFFFF; color:#222222; letter-spacing:-0.01em;">
+
+  <sc-if value="{{ showSplash }}" hint-placeholder-val="{{ true }}">
+    <div style="position:fixed; inset:0; z-index:200; background:#00532b; display:flex; flex-direction:column; align-items:center; justify-content:center; animation: fadeOutSplash 0.6s ease forwards; animation-delay: 2.4s;">
+      <div style="position:relative; width:90px; height:120px; display:flex; align-items:flex-end; justify-content:center;">
+        <div style="position:absolute; bottom:0; width:3px; height:0; background:#7A35B0; border-radius:2px; animation: sprout 1.6s cubic-bezier(0.34,1.2,0.4,1) forwards;"></div>
+        <div style="position:absolute; bottom:58px; left:50%; width:26px; height:18px; background:#00915c; border-radius:0 100% 0 100%; transform-origin:bottom left; animation: leafPop 1.8s ease forwards; animation-delay:0.9s; opacity:0;"></div>
+        <div style="position:absolute; bottom:58px; right:50%; width:26px; height:18px; background:#006b40; border-radius:100% 0 100% 0; transform-origin:bottom right; animation: leafPop 1.8s ease forwards; animation-delay:1.05s; opacity:0;"></div>
+      </div>
+      <div style="margin-top:28px; font-family:'Playfair Display', serif; font-style:italic; font-size:22px; color:#f4ede1; opacity:0; animation: heroFadeUp 0.8s ease forwards; animation-delay:1.5s;">Changi Canopy</div>
+      <div style="margin-top:6px; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#7ad9a3; opacity:0; animation: heroFadeUp 0.8s ease forwards; animation-delay:1.7s;">growing something good</div>
+    </div>
+  </sc-if>
+
+  <nav style="position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:18px 32px; background:rgba(246,241,231,0.7); backdrop-filter:blur(10px); border-bottom:1px solid rgba(42,38,32,0.08);">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <svg width="24" height="24" viewBox="0 0 256 256" fill="#008545"><path d="M 256 256 L 128 256 L 0 128 L 128 128 Z M 256 128 L 128 128 L 0 0 L 128 0 Z"></path></svg>
+      <span style="font-family:'Playfair Display', serif; font-style:italic; font-size:22px; color:#222222;">Changi Canopy</span>
+    </div>
+    <div style="display:flex; gap:4px; align-items:center; background:rgba(42,38,32,0.05); border-radius:999px; padding:6px;">
+      <a href="index.html" style="padding:8px 18px; border-radius:999px; font-size:14px; font-weight:500; color:#222222; background:#fff; text-decoration:none;">Home</a>
+      <a href="shop.html" style="padding:8px 18px; border-radius:999px; font-size:14px; font-weight:500; color:#555555; text-decoration:none;">Shop</a>
+      <a href="care-assistant.html" style="padding:8px 18px; border-radius:999px; font-size:14px; font-weight:500; color:#555555; text-decoration:none;">Plant Care</a>
+    </div>
+    <a href="shop.html" style="background:#008545; color:#f4ede1; font-size:14px; font-weight:600; padding:11px 22px; border-radius:999px; text-decoration:none;">Shop Now</a>
+  </nav>
+
+  <section ref="{{ heroRef }}" onMouseMove="{{ onMouseMove }}" onMouseLeave="{{ onMouseLeave }}" style="position:relative; width:100%; overflow:hidden; height:100vh; background:#00532b;">
+    <div class="hero-zoom" style="position:absolute; inset:0; z-index:1; overflow:hidden; background-image:url('https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055741_cbb0551d-0dc8-4ab9-afe8-8f56098bb125.png'); background-size:cover; background-position:center;">
+      <video autoplay loop muted playsinline poster="https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055741_cbb0551d-0dc8-4ab9-afe8-8f56098bb125.png" style="width:100%; height:100%; object-fit:cover;">
+        <source src="https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_091307_e28cb748-977f-453d-ac39-00b9479b9bc5.mp4" type="video/mp4" />
+      </video>
+    </div>
+    <div ref="{{ revealRef }}" style="position:absolute; inset:0; z-index:10; overflow:hidden; background-image:url('https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_082148_e4b09224-47e1-4ba6-ab31-6d08b98dc33e.png'); background-size:cover; background-position:center; pointer-events:none; opacity:0;">
+      <video autoplay loop muted playsinline poster="https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_082148_e4b09224-47e1-4ba6-ab31-6d08b98dc33e.png" style="width:100%; height:100%; object-fit:cover;">
+        <source src="https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_091308_96af9b66-a2c5-45f3-ae9b-0eb02c48501d.mp4" type="video/mp4" />
+      </video>
+    </div>
+
+    <div style="position:absolute; top:16%; left:0; right:0; display:flex; flex-direction:column; align-items:center; text-align:center; padding:0 20px; pointer-events:none; z-index:20;">
+      <h1 style="color:#fff; line-height:0.95; margin:0;">
+        <span class="hero-anim hero-reveal" style="animation-delay:0.25s; display:block; font-family:'Playfair Display', serif; font-style:italic; font-weight:500; font-size:clamp(42px,8vw,96px); letter-spacing:-0.03em;">Bring the wild</span>
+        <span class="hero-anim hero-reveal" style="animation-delay:0.42s; display:block; font-weight:500; font-size:clamp(42px,8vw,96px); letter-spacing:-0.03em; margin-top:-4px;">into your home</span>
+      </h1>
+    </div>
+
+    <div class="hero-anim hero-fade" style="animation-delay:0.7s; position:absolute; bottom:56px; left:40px; max-width:260px; z-index:20;">
+      <p style="font-size:14px; color:rgba(255,255,255,0.8); line-height:1.6; margin:0;">From sunlit mornings to lamp-lit evenings, every plant we grow is chosen to thrive in the light your space actually gets.</p>
+    </div>
+
+    <div class="hero-anim hero-fade" style="animation-delay:0.85s; position:absolute; bottom:40px; right:40px; max-width:280px; display:flex; flex-direction:column; align-items:flex-start; gap:18px; z-index:20;">
+      <p style="font-size:14px; color:rgba(255,255,255,0.8); line-height:1.6; margin:0;">Move your cursor across the room — watch it shift from morning light to evening calm.</p>
+      <a href="shop.html" style="background:#CC1000; color:#fff; font-size:14px; font-weight:600; padding:14px 30px; border-radius:999px; text-decoration:none;">Start Planting</a>
+    </div>
+  </section>
+
+  <section data-screen-label="Intro" style="max-width:1100px; margin:0 auto; padding:120px 32px 100px; text-align:center;">
+    <div ref="{{ registerReveal }}" class="reveal reveal-up" style="font-size:12px; letter-spacing:0.16em; text-transform:uppercase; color:#CC1000; font-weight:600; margin-bottom:18px;">Grown with care, styled with intention</div>
+    <h2 ref="{{ registerReveal }}" class="reveal reveal-up" style="animation-delay:0.1s; font-family:'Playfair Display', serif; font-weight:500; font-size:clamp(32px,4vw,52px); line-height:1.15; max-width:800px; margin:0 auto 24px;">Plants that feel like they've always belonged in your home.</h2>
+    <p ref="{{ registerReveal }}" class="reveal reveal-up" style="animation-delay:0.2s; font-size:16px; color:#555555; line-height:1.7; max-width:560px; margin:0 auto;">Every plant ships potted, labeled, and paired with a care card built for your exact space — not a generic label.</p>
+  </section>
+
+  <section data-screen-label="Featured" style="background:#F7F7F7; padding:100px 32px;">
+    <div style="max-width:1200px; margin:0 auto;">
+      <div ref="{{ registerReveal }}" class="reveal reveal-up" style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:48px; flex-wrap:wrap; gap:16px;">
+        <h3 style="font-family:'Playfair Display', serif; font-weight:500; font-size:clamp(26px,3vw,36px); margin:0;">This week's favorites</h3>
+        <a href="shop.html" style="color:#008545; font-size:14px; font-weight:600; text-decoration:none; border-bottom:1px solid #008545; padding-bottom:2px;">View full shop →</a>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:28px;">
+        <sc-for list="{{ featured }}" as="p" hint-placeholder-count="4">
+          <a ref="{{ registerReveal }}" class="reveal reveal-pop" style="animation-delay:{{ p.revealDelay }}; text-decoration:none; color:inherit; display:block; background:#FFFFFF; border-radius:18px; overflow:hidden; box-shadow:0 1px 3px rgba(42,38,32,0.06);">
+            <div style="width:100%; aspect-ratio:1/1; background-image:url('{{ p.img }}'); background-size:cover; background-position:center;"></div>
+            <div style="padding:18px 20px 22px;">
+              <div style="font-family:'Playfair Display', serif; font-size:18px; font-weight:500; margin-bottom:4px;">{{ p.name }}</div>
+              <div style="font-size:13px; color:#888888; margin-bottom:10px;">{{ p.light }}</div>
+              <div style="font-size:15px; font-weight:600; color:#CC1000;">{{ p.price }}</div>
+            </div>
+          </a>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <section data-screen-label="Care CTA" style="max-width:1100px; margin:0 auto; padding:120px 32px; display:flex; align-items:center; gap:64px; flex-wrap:wrap;">
+    <div ref="{{ registerReveal }}" class="reveal reveal-left" style="flex:1 1 360px; min-width:280px; aspect-ratio:4/5; border-radius:20px; background-image:url('https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055753_fe67c479-59e8-4df6-8a62-31c1f523ef9d.png'); background-size:cover; background-position:center;"></div>
+    <div ref="{{ registerReveal }}" class="reveal reveal-right" style="flex:1 1 360px; min-width:280px;">
+      <div style="font-size:12px; letter-spacing:0.16em; text-transform:uppercase; color:#CC1000; font-weight:600; margin-bottom:18px;">Not sure where to start?</div>
+      <h2 style="font-family:'Playfair Display', serif; font-weight:500; font-size:clamp(28px,3.5vw,44px); line-height:1.15; margin:0 0 20px;">Tell us about your space. We'll match the plant.</h2>
+      <p style="font-size:16px; color:#555555; line-height:1.7; margin:0 0 32px;">Living room, office, bedroom, or a festive table setting — our care assistant recommends plants suited to your light and lifestyle, plus how to keep them alive.</p>
+      <a href="care-assistant.html" style="background:#008545; color:#f4ede1; font-size:15px; font-weight:600; padding:15px 32px; border-radius:999px; text-decoration:none;">Find my plant</a>
+    </div>
+  </section>
+
+  <section data-screen-label="Our Story" style="max-width:1200px; margin:0 auto; padding:0 32px 120px; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:24px;">
+    <div ref="{{ registerReveal }}" class="reveal reveal-up" style="grid-column:1 / -1; margin-bottom:8px;">
+      <div style="font-size:12px; letter-spacing:0.16em; text-transform:uppercase; color:#CC1000; font-weight:600; margin-bottom:14px;">Our story</div>
+      <h2 style="font-family:'Playfair Display', serif; font-weight:500; font-size:clamp(26px,3.2vw,38px); line-height:1.2; margin:0; max-width:640px;">We grow slowly, on purpose, in a small nursery built for care over speed.</h2>
+    </div>
+    <div ref="{{ registerReveal }}" class="reveal reveal-pop" style="aspect-ratio:4/5; border-radius:20px; background-image:url('https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_091155_bcf03015-7600-454c-91f0-17b4c37b68f9.png'); background-size:cover; background-position:center;"></div>
+    <div ref="{{ registerReveal }}" class="reveal reveal-pop" style="animation-delay:0.1s; aspect-ratio:4/5; border-radius:20px; background-image:url('https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_091157_4848ffe7-f15f-4271-8ad0-ef5cdd133767.png'); background-size:cover; background-position:center;"></div>
+    <div ref="{{ registerReveal }}" class="reveal reveal-pop" style="animation-delay:0.2s; aspect-ratio:4/5; border-radius:20px; display:flex; flex-direction:column; justify-content:center; padding:32px; background:#F7F7F7;">
+      <p style="font-size:15px; color:#555555; line-height:1.75; margin:0;">Every plant spends its first weeks in our own potting shed before it ever ships — hand-checked for root health, light needs, and the kind of pot it'll actually thrive in.</p>
+    </div>
+  </section>
+
+  <footer style="background:#00532b; color:#eaf5ee; padding:64px 32px 40px;">
+    <div style="max-width:1200px; margin:0 auto; display:flex; justify-content:space-between; flex-wrap:wrap; gap:32px;">
+      <div>
+        <div style="font-family:'Playfair Display', serif; font-style:italic; font-size:22px; color:#fff; margin-bottom:8px;">Changi Canopy</div>
+        <div style="font-size:13px; color:#7ad9a3;">Modern plants, rustic soul.</div>
+      </div>
+      <div style="display:flex; gap:48px; flex-wrap:wrap;">
+        <div style="display:flex; flex-direction:column; gap:10px; font-size:14px;">
+          <a href="shop.html" style="color:#eaf5ee; text-decoration:none;">Shop</a>
+          <a href="care-assistant.html" style="color:#eaf5ee; text-decoration:none;">Plant Care</a>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:10px; font-size:14px;">
+          <a href="terms.html" style="color:#eaf5ee; text-decoration:none;">Terms &amp; Conditions</a>
+          <a href="privacy.html" style="color:#eaf5ee; text-decoration:none;">Privacy</a>
+          <a href="disclaimer.html" style="color:#eaf5ee; text-decoration:none;">Disclaimer</a>
+        </div>
+      </div>
+    </div>
+    <div style="max-width:1200px; margin:40px auto 0; padding-top:24px; border-top:1px solid rgba(255,255,255,0.1); font-size:12px; color:#9fd6b8;">© 2026 Changi Canopy. All rights reserved.</div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    showSplash: true,
+  };
+
+  // Scroll-triggered entrance: elements register themselves via
+  // registerReveal (ref callback); once 15% visible we add "reveal-in",
+  // which fires the CSS keyframe named by their reveal-up/pop/left/right
+  // class, then we stop observing so it never re-triggers.
+  _revealEls = [];
+  _observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('reveal-in');
+        this._observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  registerReveal = (el) => {
+    if (el && !this._revealEls.includes(el)) {
+      this._revealEls.push(el);
+      this._observer.observe(el);
+    }
+  };
+
+  componentDidMount() {
+    this._canvas = document.createElement('canvas');
+    this.updateCanvasSize();
+    this._resizeHandler = () => this.updateCanvasSize();
+    window.addEventListener('resize', this._resizeHandler);
+    this._splashTimer = setTimeout(() => this.setState({ showSplash: false }), 3000);
+
+    // Raw + eased cursor position: the mousemove listener only records the
+    // raw target, a requestAnimationFrame loop lerps the smoothed position
+    // toward it and redraws every frame. This decouples the reveal from
+    // native mousemove event frequency/jitter for a fluid trailing motion.
+    this._mouse = { x: -999, y: -999 };
+    this._smooth = { x: -999, y: -999 };
+
+    this._globalMoveHandler = (e) => {
+      const section = this._heroEl;
+      if (!section) return;
+      const rect = section.getBoundingClientRect();
+      if (e.clientY < rect.top || e.clientY > rect.bottom) {
+        this._mouse = { x: -999, y: -999 };
+        return;
+      }
+      this._mouse = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    };
+    window.addEventListener('mousemove', this._globalMoveHandler);
+
+    const tick = () => {
+      this._smooth.x += (this._mouse.x - this._smooth.x) * 0.1;
+      this._smooth.y += (this._mouse.y - this._smooth.y) * 0.1;
+      this.drawMask(this._smooth.x, this._smooth.y);
+      this._rafRef = requestAnimationFrame(tick);
+    };
+
+    this._initTimer = setTimeout(() => {
+      if (this._heroEl) {
+        const rect = this._heroEl.getBoundingClientRect();
+        this._mouse = { x: rect.width / 2, y: rect.height / 2 };
+        this._smooth = { x: rect.width / 2, y: rect.height / 2 };
+      }
+      this._rafRef = requestAnimationFrame(tick);
+    }, 100);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this._resizeHandler);
+    window.removeEventListener('mousemove', this._globalMoveHandler);
+    clearTimeout(this._splashTimer);
+    clearTimeout(this._initTimer);
+    cancelAnimationFrame(this._rafRef);
+    this._observer.disconnect();
+  }
+
+  updateCanvasSize = () => {
+    if (!this._canvas) return;
+    this._canvas.width = window.innerWidth;
+    this._canvas.height = window.innerHeight;
+  };
+
+  drawMask = (x, y) => {
+    if (!this._canvas) return;
+    if (this._canvas.width !== window.innerWidth || this._canvas.height !== window.innerHeight) {
+      this.updateCanvasSize();
+    }
+    const c = this._canvas;
+    const ctx = c.getContext('2d');
+    ctx.clearRect(0, 0, c.width, c.height);
+    const R = 624;
+    const grad = ctx.createRadialGradient(x, y, 0, x, y, R);
+    grad.addColorStop(0, 'rgba(255,255,255,1)');
+    grad.addColorStop(0.4, 'rgba(255,255,255,1)');
+    grad.addColorStop(0.6, 'rgba(255,255,255,0.75)');
+    grad.addColorStop(0.75, 'rgba(255,255,255,0.4)');
+    grad.addColorStop(0.88, 'rgba(255,255,255,0.12)');
+    grad.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(x, y, R, 0, Math.PI * 2);
+    ctx.fill();
+    // Apply the mask directly on the DOM node. Doing this imperatively
+    // (rather than through a style-string template hole) avoids the
+    // data-URL's ";base64," being mistaken for a CSS declaration
+    // separator and truncated.
+    const dataUrl = c.toDataURL();
+    if (this._revealEl) {
+      this._revealEl.style.webkitMaskImage = 'url(' + dataUrl + ')';
+      this._revealEl.style.maskImage = 'url(' + dataUrl + ')';
+      this._revealEl.style.webkitMaskSize = '100% 100%';
+      this._revealEl.style.maskSize = '100% 100%';
+      this._revealEl.style.opacity = '1';
+    }
+  };
+
+  onMouseMove = () => {};
+
+  onMouseLeave = () => {};
+
+  renderVals() {
+    const featured = [
+      { name: 'Monstera Deliciosa', light: 'Bright, indirect light', price: '$48', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055759_28ca2885-1cc6-48e1-829c-63fcb9183f6a.png' },
+      { name: 'Fiddle Leaf Fig', light: 'Bright, filtered light', price: '$62', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055800_3075d05d-7bdf-42f5-ac92-5820dd17901c.png' },
+      { name: 'Snake Plant', light: 'Low to bright light', price: '$34', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055802_26fd8383-1871-4320-bf8a-8cac46e3b513.png' },
+      { name: 'Golden Pothos', light: 'Low to medium light', price: '$28', img: 'https://d8j0ntlcm91z4.cloudfront.net/user_3BpRykuSJsdZIhRBpgX8aKMcqsi/hf_20260707_055803_bf68b781-2764-4665-84c2-06c7c72227f6.png' },
+    ].map((p, i) => ({ ...p, revealDelay: (i * 0.08) + 's' }));
+
+    return {
+      showSplash: this.state.showSplash,
+      heroRef: (el) => { this._heroEl = el; },
+      revealRef: (el) => { this._revealEl = el; },
+      onMouseMove: this.onMouseMove,
+      onMouseLeave: this.onMouseLeave,
+      registerReveal: this.registerReveal,
+      featured,
+    };
+  }
+}
+</script>
+</body>
+</html>
